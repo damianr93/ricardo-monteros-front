@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
         <div className="container mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
           <NavLink to="/" className="flex-shrink-0">
-            <img src="/img/logo_sin_fondo.png" alt="Ricardo Montero" className="h-16" />
+            <img src="/img/logo_sin_fondo.png" alt="Ricardo Montero" className="h-20" />
           </NavLink>
 
           {/* Menú Desktop */}

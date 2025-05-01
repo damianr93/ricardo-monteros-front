@@ -33,11 +33,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   const uniqueItems = Array.from(new Set(cartItems.map(i => i.id)))
 
   return (
-    <aside className={`${className} w-64 bg-white p-6 border-r border-gray-200 sticky top-16 h-[calc(100vh-4rem)] overflow-auto`}>    
+    <aside className={`${className} w-64 bg-white p-8 border-r border-gray-200 sticky top-16 h-[calc(100vh-4rem)] overflow-auto`}>    
       <div className="mb-6 space-y-2">
         <button
           onClick={onLoginClick}
-          className="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-light transition"
+          className="w-full bg-primary text-black py-2 rounded-md hover:bg-primary transition"
         >
           Iniciar Sesión
         </button>
