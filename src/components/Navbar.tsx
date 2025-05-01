@@ -117,15 +117,6 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile toggle arrow centered */}
-      <button
-        className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-2 bg-primary text-white rounded-full lg:hidden"
-        onClick={() => setDrawerOpen(o => !o)}
-        aria-label="Toggle sidebar"
-      >
-        {drawerOpen ? <HiX className="w-6 h-6" /> : <HiMenu className="w-6 h-6" />}
-      </button>
-
       {/* Drawer Móvil */}
       <div
         className={`fixed top-0 ${drawerOpen ? 'right-0' : '-right-full'} h-full w-3/4 max-w-xs bg-neutral-50 shadow-xl p-6 transition-transform duration-300 lg:hidden z-50`}

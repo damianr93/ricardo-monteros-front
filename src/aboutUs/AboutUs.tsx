@@ -1,31 +1,20 @@
 // File: src/components/QuienesSomos.tsx
 import React from 'react'
-import { FaChevronDown } from 'react-icons/fa'
 
 const QuienesSomos: React.FC = () => {
   return (
-    <>
+    <div className="bg-neutral-50 py-16 px-4 sm:px-8 lg:px-24">
       {/* Hero mejorado */}
-      <section
-        className="relative w-full h-80 sm:h-96 md:h-[70vh] bg-center bg-cover"
-        style={{ backgroundImage: "url('/img/slide-3.webp')" }}
+      <div
+        className="relative h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden shadow-lg mb-16"
+        style={{ backgroundImage: "url('/img/slide-3.webp')", backgroundSize: 'cover' }}
       >
-        {/* Overlay oscuro con degradado */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-transparent to-black/70"></div>
-        {/* Contenido del hero */}
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
-          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl text-white font-semibold mb-2">
-            Quiénes Somos
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-transparent to-black/70 flex items-center justify-center">
+          <h1 className="text-white text-3xl md:text-4xl lg:text-5xl font-heading">
+            Quienes somos
           </h1>
-          <p className="font-body text-lg sm:text-xl text-neutral-200 mb-6 max-w-2xl">
-            Transformamos espacios con pasión, detalle y creatividad.
-          </p>
-          {/* Indicador para hacer scroll */}
-          <a href="#sobre-nosotros" className="animate-bounce text-white">
-            <FaChevronDown className="h-6 w-6" />
-          </a>
         </div>
-      </section>
+      </div>
 
       {/* Sección de texto */}
       <section id="sobre-nosotros" className="py-16 bg-neutral-50">
@@ -44,7 +33,7 @@ const QuienesSomos: React.FC = () => {
           </p>
         </div>
       </section>
-    </>
+    </div>
   )
 }
 
