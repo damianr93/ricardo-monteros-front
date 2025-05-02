@@ -37,13 +37,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="mb-6 pt-8 space-y-2">
         <button
           onClick={onLoginClick}
-          className="w-full bg-primary text-black py-2 rounded-md hover:bg-primary transition"
+          className="w-full bg-accent-coral text-black py-2 rounded-md hover:bg-accent-coral transition"
         >
           Iniciar Sesión
         </button>
         <button
           onClick={onRegisterClick}
-          className="w-full border border-primary text-primary py-2 rounded-md hover:bg-primary-light hover:text-white transition"
+          className="w-full border border-accent-coral text-accent-coral py-2 rounded-md hover:bg-accent-coral-light hover:text-white transition"
         >
           Registrarse
         </button>
