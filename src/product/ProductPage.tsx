@@ -8,6 +8,9 @@ import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
 import ProductList from './ProductList'
 import PaymentForm from './PaymentForm'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../store/store'
+import { fetchMe, logoutUser } from '../store/logged/thunks'
 
 
 const ProductPage: React.FC = () => {
@@ -18,15 +21,23 @@ const ProductPage: React.FC = () => {
   const [mode, setMode] = useState<'browse' | 'login' | 'register' | 'checkout'>('browse')
   const [cartItems, setCartItems] = useState<ExampleItem[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const isLoggedIn = true // Simulación de estado
+  const { isLoggedIn, user } = useSelector((state: RootState) => state.isLoggedUser)
+  const dispatch = useDispatch<AppDispatch>();
 
-  // Sincroniza selectedCategory con query param
+  console.log(isLoggedIn, user)
+
+  useEffect(() => {
+    dispatch(fetchMe());
+  }, []);
+
   useEffect(() => {
     const q = searchParams.get('item')
     if (q && q !== selectedCategory) {
       setSelectedCategory(q)
     }
   }, [searchParams])
+
+
 
   const handleSelectCategory = (cat: string) => {
     setSelectedCategory(cat)
@@ -53,6 +64,9 @@ const ProductPage: React.FC = () => {
   }
   const handleCheckoutClick = () => setMode('checkout')
   const handlePaymentSuccess = () => { setCartItems([]); setMode('browse') }
+  const onLogoutClick = () => {
+    dispatch(logoutUser())
+  }
 
   const itemsToShow = PRODUCTOS.filter(item => item.category === selectedCategory)
 
@@ -75,6 +89,7 @@ const ProductPage: React.FC = () => {
         onLoginClick={handleLoginClick}
         onRegisterClick={handleRegisterClick}
         cartItems={cartItems}
+        onLogoutClick={onLogoutClick}
         onCheckoutClick={handleCheckoutClick}
         onRemoveFromCart={handleRemoveFromCart}
         isLoggedIn={isLoggedIn}
