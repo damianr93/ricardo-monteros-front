@@ -7,9 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Background suave tipo crema
+
         neutral: {
-          50:  "#FBF7F0",  // very light cream
+          50:  "#FBF7F0", 
           100: "#F3EDE1",
           200: "#E5DAC3",
           300: "#D7C8A5",
@@ -21,16 +21,14 @@ export default {
           900: "#51422F",
         },
 
-        // Verde principal (letra R/M)
         brand: {
           green: {
             DEFAULT: "#869F72",
-            light:   "#A3B78E",  // tint más suave
-            dark:    "#6C7E52",  // tono más profundo
+            light:   "#A3B78E",  
+            dark:    "#6C7E52",  
           }
         },
 
-        // Coral / terracota (rosa y texto)
         accent: {
           coral: {
             DEFAULT: "#D1633B",
@@ -39,7 +37,6 @@ export default {
           }
         },
 
-        // Detalle secundario (hojas del tallo)
         leaf: {
           DEFAULT: "#75905B",
           light:   "#95AB7E",
@@ -48,7 +45,6 @@ export default {
       },
 
       backgroundImage: {
-        // si quieres un fondo texturizado muy suave
         "paper-pattern": "url('/assets/pattern-crema.svg')",
       },
 
@@ -60,6 +56,5 @@ export default {
   },
   plugins: [
     require('@tailwindcss/forms'),
-    // require('@tailwindcss/typography'),
   ],
 }

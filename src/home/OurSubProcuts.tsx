@@ -1,12 +1,6 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-// Importamos register desde swiper/element para el enfoque alternativo si es necesario
-import { register } from 'swiper/element/bundle'
-
-// Los módulos ahora se importan directamente
 import { Autoplay, Pagination, Navigation } from 'swiper/modules'
-
-// Estilos ya declarados en main.ts como mencionaste
 
 interface Block {
     titleLines: [string, string?]
@@ -22,12 +16,6 @@ const blocks: Block[] = [
 ]
 
 const SubproductosCarousel: React.FC = () => {
-    // Registramos los módulos de Swiper
-    useEffect(() => {
-        // Registrar Swiper y sus componentes (enfoque alternativo)
-        register();
-    }, []);
-
     return (
         <section className="py-12 bg-neutral-100">
             <div className="container mx-auto px-4 text-center max-w-2xl mb-8">
@@ -57,16 +45,6 @@ const SubproductosCarousel: React.FC = () => {
                         1024: { slidesPerView: 4 },
                     }}
                     className="products-swiper"
-                    onSwiper={(swiper) => {
-                        console.log("Swiper inicializado", swiper);
-                        // Forzar actualización después de montaje
-                        setTimeout(() => {
-                            swiper.update();
-                        }, 100);
-                    }}
-                    onAutoplayTimeLeft={(progress) => {
-                        console.log(`Progreso autoplay: ${progress}`);
-                    }}
                 >
                     {blocks.map(block => (
                         <SwiperSlide key={block.href}>
