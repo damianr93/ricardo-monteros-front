@@ -1,7 +1,7 @@
 import { AppThunk } from "../store"
 import { baseUrl } from '../API.ts'
 import { setUserDisloged, setUserLogged } from "./userLogged.ts";
-
+import { toast } from "react-toastify";
 
 export const loginUser = (dataToLogin: { email: string, password: string }): AppThunk => {
   return async (dispatch) => {
@@ -16,10 +16,19 @@ export const loginUser = (dataToLogin: { email: string, password: string }): App
 
       const data = await response.json();
 
-      dispatch(setUserLogged(data));
+      if (response.ok && data.user) {
+        dispatch(setUserLogged(data.user));
+      } else {
+        toast.error('Algo salio mal, intente nuevamente', {
+          position: 'top-left'
+        })
+      }
 
     } catch (error) {
       console.error("Failed to fetch users:", error);
+      toast.error('Algo salio mal, intente nuevamente', {
+        position: 'top-left'
+      })
     }
   }
 }
@@ -58,3 +67,5 @@ export const logoutUser = (): AppThunk => async (dispatch) => {
     //isUserLogged en false
   }
 };
+
+

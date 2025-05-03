@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { baseUrl } from '../store/API'
+import { toast } from 'react-toastify'
 
 interface RegisterFormProps {
     onSuccess: () => void
@@ -9,11 +11,31 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Simula registro
-        localStorage.setItem('authToken', 'token')
-        onSuccess()
+        try {
+            const response = await fetch(`${baseUrl}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.message || 'Error al registrarse')
+            }
+
+            toast.info('Registro exitoso, puede logearse ahora', {
+                position: 'top-left'
+            })
+            onSuccess()
+        } catch (err: any) {
+            toast.error('Algo salio mal, intente nuevamente', {
+                position: 'top-left'
+            })
+        }
     }
 
     return (

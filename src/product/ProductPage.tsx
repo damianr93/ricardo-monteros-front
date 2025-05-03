@@ -74,11 +74,11 @@ const ProductPage: React.FC = () => {
     <div className="flex flex-col lg:flex-row pt-16 min-h-screen bg-neutral-50">
       {/* Mobile toggle arrow */}
       <button
-        className="fixed top-1/2 left-4 transform -translate-y-1/2 lg:hidden z-50 p-2 bg-accent-coral text-accent-coral rounded-full"
+        className="fixed top-1/2 transform -translate-y-1/2 lg:hidden z-50 p-2 bg-accent-coral text-black rounded-full"
         onClick={() => setSidebarOpen(open => !open)}
         aria-label="Toggle sidebar"
       >
-        {sidebarOpen ? <FaChevronLeft className="w-6 h-6" /> : <FaChevronRight className="w-6 h-6" />}
+        {sidebarOpen ? <FaChevronLeft className="w-3 h-3" /> : <FaChevronRight className="w-3 h-3" />}
       </button>
 
       {/* Sidebar: hidden on mobile unless open */}

@@ -46,7 +46,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             </div>
             <button
                 type="submit"
-                className="w-full bg-accent-coral text-accent-coral py-2 rounded-md hover:bg-accent-coral-light transition"
+                className="w-full bg-accent-coral text-white py-2 rounded-md hover:bg-accent-coral-light transition"
             >
                 Entrar
             </button>

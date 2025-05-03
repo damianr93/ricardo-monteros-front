@@ -3,6 +3,7 @@ import { Home } from "../home/home"
 import QuienesSomos from "../aboutUs/AboutUs"
 import ProductPage from "../product/ProductPage"
 import Contacto from "../contact/Contact"
+import CPanel from "../cpanel/cpanel"
 
 export const AppRouter = () => {
     return (
@@ -12,6 +13,7 @@ export const AppRouter = () => {
                 <Route path="/nosotros" element={<QuienesSomos />} />
                 <Route path="/contacto" element={<Contacto />} />
                 <Route path="/catalogo" element={<ProductPage />} />
+                <Route path="/catalogo/cpanel" element={<CPanel />} />
             </Routes>
         </>
     )
