@@ -96,13 +96,13 @@ const Navbar: React.FC = () => {
 
           {/* Iconos + Menú móvil */}
           <div className="flex items-center space-x-4">
-            <a href="https://www.instagram.com/ricardo_montero/" className="text-neutral-800 hover:text-accent-coral transition">
+            <a href="#" className="text-neutral-800 hover:text-accent-coral transition">
               <FaInstagram className="w-5 h-5" />
             </a>
-            <a href="https://www.facebook.com/ricardo_montero/" className="text-neutral-800 hover:text-accent-coral transition">
+            <a href="#" className="text-neutral-800 hover:text-accent-coral transition">
               <FaFacebookF className="w-5 h-5" />
             </a>
-            <a href="https://wa.me/5493534210083" className="text-neutral-800 hover:text-accent-coral transition">
+            <a href="#" className="text-neutral-800 hover:text-accent-coral transition">
               <FaWhatsapp className="w-5 h-5" />
             </a>
 

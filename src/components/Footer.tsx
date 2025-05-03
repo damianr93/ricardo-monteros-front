@@ -73,7 +73,7 @@ const Footer: React.FC = () => (
         <ul className="flex space-x-6">
           <li>
             <a
-              href="https://www.instagram.com/ricardo_montero/"
+              href="#"
               target="_blank"
               rel="noopener noreferrer"
               className="text-neutral-100 hover:text-accent-coral-light transition"
@@ -83,7 +83,7 @@ const Footer: React.FC = () => (
           </li>
           <li>
             <a
-              href="https://www.facebook.com/ricardo.monterodecoraciones"
+              href="#"
               target="_blank"
               rel="noopener noreferrer"
               className="text-neutral-100 hover:text-accent-coral-light transition"
@@ -102,7 +102,7 @@ const Footer: React.FC = () => (
         <p className="text-xs text-brand-light/60 flex items-center justify-center space-x-2">
           <span>Desarrollado por</span>
           <a
-            href="https://ducksolutions.com"
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center hover:opacity-80"
