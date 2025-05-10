@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/store'
 import { Product } from '../../../data/types'
 
 interface ProductFormProps {
     initial?: Product
-    onSubmit: (data: Omit<Product, 'id' | 'user'>) => void
+    onSubmit: (data: Omit<Product, 'id' | 'user'>, imageFile?: File) => void
     onCancel: () => void
 }
 
@@ -14,34 +14,56 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
     const [name, setName] = useState(initial?.name || '')
     const [price, setPrice] = useState(initial?.price.toString() || '0')
     const [available, setAvailable] = useState(initial?.available || false)
-    const [category, setCategory] = useState(initial?.category || '')
+    const [categoryId, setCategoryId] = useState(initial?.category?.id || '')
     const [title, setTitle] = useState(initial?.title || '')
     const [description, setDescription] = useState(initial?.description || '')
-    const [img, setImg] = useState(initial?.img || '')
+    const [previewImage, setPreviewImage] = useState<string | undefined>(initial?.photoURL)
+    const [imageFile, setImageFile] = useState<File | undefined>(undefined)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         if (initial) {
             setName(initial.name)
             setPrice(initial.price.toString())
             setAvailable(initial.available)
-            setCategory(initial.category)
+            setCategoryId(initial.category?.id || '')
             setTitle(initial.title || '')
             setDescription(initial.description || '')
-            setImg(initial.img || '')
+            setPreviewImage(initial.photoURL)
+            setImageFile(undefined)
         }
     }, [initial])
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setImageFile(file)
+            // Crear una URL temporal para previsualizar la imagen
+            const objectUrl = URL.createObjectURL(file)
+            setPreviewImage(objectUrl)
+        }
+    }
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+        
+        // Encontrar el objeto Category completo basado en el ID seleccionado
+        const selectedCategory = categories.find(c => c.id === categoryId)
+        
+        if (!selectedCategory) {
+            alert('Por favor selecciona una categoría válida')
+            return
+        }
+        
         onSubmit({
             name,
             price: parseFloat(price),
             available,
-            category,
+            category: selectedCategory,
             title,
             description,
-            img
-        })
+            photoURL: previewImage
+        }, imageFile)
     }
 
     return (
@@ -71,8 +93,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
                     />
 
                     <select
-                        value={category}
-                        onChange={e => setCategory(e.target.value)}
+                        value={categoryId}
+                        onChange={e => setCategoryId(e.target.value)}
                         required
                         className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green"
                     >
@@ -97,13 +119,45 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
                         className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green"
                     />
 
-                    <input
-                        type="text"
-                        placeholder="URL de imagen (opcional)"
-                        value={img}
-                        onChange={e => setImg(e.target.value)}
-                        className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green"
-                    />
+                    {/* Campo para subir imagen */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Imagen del producto
+                        </label>
+                        
+                        <div className="flex items-center space-x-4">
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
+                            >
+                                Seleccionar archivo
+                            </button>
+                            
+                            <span className="text-sm text-gray-500">
+                                {imageFile ? imageFile.name : 'Ningún archivo seleccionado'}
+                            </span>
+                        </div>
+                        
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                        />
+                        
+                        {/* Vista previa de la imagen */}
+                        {previewImage && (
+                            <div className="mt-2">
+                                <img 
+                                    src={previewImage} 
+                                    alt="Vista previa" 
+                                    className="max-h-40 rounded border"
+                                />
+                            </div>
+                        )}
+                    </div>
 
                     <div className="flex items-center">
                         <input

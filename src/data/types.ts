@@ -23,6 +23,6 @@ export interface Product {
   title?: string;
   description?: string;
   user: string;
-  category: string;
-  img?: string;
+  category: Category;
+  photoURL?: string;
 }

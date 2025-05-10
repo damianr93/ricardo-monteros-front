@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import { FaChevronRight, FaChevronLeft } from 'react-icons/fa'
 import { useNavigate, useSearchParams } from 'react-router'
-import { ExampleItem, PRODUCTOS } from '../data/items'
 import Sidebar from './SideBar'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
@@ -11,6 +10,8 @@ import PaymentForm from './PaymentForm'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../store/store'
 import { fetchMe, logoutUser } from '../store/logged/thunks'
+import { fetchProducts } from '../store/products/thunks'
+import { Product } from '../data/types'
 
 
 const ProductPage: React.FC = () => {
@@ -19,16 +20,15 @@ const ProductPage: React.FC = () => {
   const itemParam = searchParams.get('item') || 'flores'
   const [selectedCategory, setSelectedCategory] = useState<string>(itemParam)
   const [mode, setMode] = useState<'browse' | 'login' | 'register' | 'checkout'>('browse')
-  const [cartItems, setCartItems] = useState<ExampleItem[]>([])
+  const [cartItems, setCartItems] = useState<Product[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { isLoggedIn, user } = useSelector((state: RootState) => state.isLoggedUser)
+  const { isLoggedIn } = useSelector((state: RootState) => state.isLoggedUser)
+  const {list: products} = useSelector((state:RootState) => state.products)
   const dispatch = useDispatch<AppDispatch>();
-
-  console.log(isLoggedIn, user)
-
   useEffect(() => {
     dispatch(fetchMe());
-  }, []);
+    dispatch(fetchProducts())
+  }, [dispatch]);
 
   useEffect(() => {
     const q = searchParams.get('item')
@@ -37,22 +37,19 @@ const ProductPage: React.FC = () => {
     }
   }, [searchParams])
 
-
-
   const handleSelectCategory = (cat: string) => {
     setSelectedCategory(cat)
     searchParams.set('item', cat)
     setSearchParams(searchParams)
     setMode('browse')
     setSidebarOpen(false)
-    // Opcional: navegar explícito
     navigate(`/catalogo?item=${cat}`, { replace: true })
   }
 
   const handleLoginClick = () => { setMode('login'); setSidebarOpen(false) }
   const handleRegisterClick = () => { setMode('register'); setSidebarOpen(false) }
   const handleAuthSuccess = () => setMode('browse')
-  const handleAddToCart = (item: ExampleItem) => setCartItems(prev => [...prev, item])
+  const handleAddToCart = (item: Product) => setCartItems(prev => [...prev, item])
   const handleRemoveFromCart = (id: string) => {
     setCartItems(prev => {
       const idx = prev.findIndex(i => i.id === id)
@@ -68,7 +65,7 @@ const ProductPage: React.FC = () => {
     dispatch(logoutUser())
   }
 
-  const itemsToShow = PRODUCTOS.filter(item => item.category === selectedCategory)
+  const itemsToShow = products.filter(item => item.category.id === selectedCategory)
 
   return (
     <div className="flex flex-col lg:flex-row pt-16 min-h-screen bg-neutral-50">

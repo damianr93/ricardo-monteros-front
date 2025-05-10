@@ -13,7 +13,10 @@ import {
 export const fetchProducts = (): AppThunk => async dispatch => {
   dispatch(prodFetchStart())
   try {
-    const res = await fetch(`${baseUrl}/products`)
+    const res = await fetch(`${baseUrl}/products`, {
+      method: 'GET',
+      credentials: "include"
+    })
     if (!res.ok) throw new Error('Error fetching products')
     const json = await res.json() as { products: Product[] }
     dispatch(prodFetchSuccess(json.products))
@@ -41,7 +44,7 @@ export const createProduct = (payload: Omit<Product, 'id' | 'user'>): AppThunk =
 export const updateProduct = (id: string, payload: Partial<Omit<Product, 'id' | 'user'>>): AppThunk => async dispatch => {
   try {
     const res = await fetch(`${baseUrl}/products/${id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       credentials: "include",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

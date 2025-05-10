@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { ExampleItem } from '../data/items'
+import { Product } from '../data/types'
 
 interface PaymentFormProps {
-    items: ExampleItem[]
+    items: Product[]
     total: number
     onSuccess: () => void
 }

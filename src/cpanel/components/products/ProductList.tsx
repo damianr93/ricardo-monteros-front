@@ -1,19 +1,33 @@
-// File: src/components/products/ProductList.tsx
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
-
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa'
 import { AppDispatch, RootState } from '../../../store/store'
 import { createProduct, deleteProduct, fetchProducts, updateProduct } from '../../../store/products/thunks'
 import { Product } from '../../../data/types'
 import ProductForm from './ProductForm'
+import CustomTable, { Action, Column } from '../customTable'
+
+const columns: Column[] = [
+  { field: "name", headerName: "Nombre Producto", align: "left" },
+  { field: "title", headerName: "Titulo producto", align: "left" },
+  { field: "description", headerName: "Descripcion", align: "left" },
+  { field: "category.name", headerName: "Categoria", align: "left" },
+  { field: "price", headerName: "Precio", align: "left" },
+  { field: "available", headerName: "Activa", align: "left" },
+];
+
+const actions: Action[] = [
+  { name: "editar", icon: <FaEdit />, color: "primary", tooltip: "Editar R/O" },
+  { name: "eliminar", icon: <FaTrash />, color: "secondary", tooltip: "Eliminar" }
+];
 
 const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { list: products, loading, error } = useSelector((state: RootState) => state.products)
   const [editing, setEditing] = useState<Product | null>(null)
   const [showForm, setShowForm] = useState(false)
+
+  console.log(products)
 
   useEffect(() => {
     dispatch(fetchProducts())
@@ -23,15 +37,7 @@ const ProductList: React.FC = () => {
     setEditing(null)
     setShowForm(true)
   }
-  const handleEdit = (p: Product) => {
-    setEditing(p)
-    setShowForm(true)
-  }
-  const handleDelete = (id: string) => {
-    if (window.confirm('¿Eliminar producto?')) {
-      dispatch(deleteProduct(id))
-    }
-  }
+
   const handleSubmit = (data: Omit<Product, 'id' | 'user'>, updateId?: string) => {
     if (updateId) {
       dispatch(updateProduct(updateId, data))
@@ -40,6 +46,15 @@ const ProductList: React.FC = () => {
     }
     setShowForm(false)
   }
+
+  const handleActionClick = (action: Action, row: any) => {
+    if (action.name === "editar") {
+      setEditing(row);
+      setShowForm(true)
+    } else if (action.name === "eliminar") {
+      dispatch(deleteProduct(row.id))
+    }
+  };
 
   return (
     <div>
@@ -51,23 +66,15 @@ const ProductList: React.FC = () => {
       </div>
       {loading && <p>Cargando...</p>}
       {error && <p className="text-red-500">{error}</p>}
-      <ul className="space-y-2">
-        {products.map(p => (
-          <li key={p.id} className="flex justify-between items-center bg-white p-4 rounded shadow">
-            <div>
-              <strong>{p.name}</strong> — ${p.price.toFixed(2)} {p.available ? '(Activo)' : '(Inactivo)'}
-            </div>
-            <div className="space-x-2">
-              <button onClick={() => handleEdit(p)} className="p-1 hover:text-brand-green">
-                <FaEdit />
-              </button>
-              <button onClick={() => handleDelete(p.id)} className="p-1 hover:text-accent-coral">
-                <FaTrash />
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+
+
+      <CustomTable
+        columns={columns}
+        data={products}
+        actions={actions}
+        onActionClick={handleActionClick}
+
+      />
       {showForm && (
         <ProductForm
           initial={editing || undefined}

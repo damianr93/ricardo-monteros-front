@@ -2,6 +2,7 @@ import { AppThunk } from "../store"
 import { baseUrl } from '../API.ts'
 import { setUserDisloged, setUserLogged } from "./userLogged.ts";
 import { toast } from "react-toastify";
+import { fetchProducts } from "../products/thunks.ts";
 
 export const loginUser = (dataToLogin: { email: string, password: string }): AppThunk => {
   return async (dispatch) => {
@@ -18,6 +19,7 @@ export const loginUser = (dataToLogin: { email: string, password: string }): App
 
       if (response.ok && data.user) {
         dispatch(setUserLogged(data.user));
+        dispatch(fetchProducts());
       } else {
         toast.error('Algo salio mal, intente nuevamente', {
           position: 'top-left'
