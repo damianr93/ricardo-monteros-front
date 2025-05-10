@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { ExampleItem } from '../data/items'
+import { Product } from '../data/types'
 
 
 interface ProductCardProps {
-    item: ExampleItem
+    item: Product
     isLoggedIn: boolean
-    onAddToCart: (item: ExampleItem) => void
+    onAddToCart: (item: Product) => void
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart }) => {
@@ -18,12 +18,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
                 onClick={() => setShowModal(true)}
             >
                 <img
-                    src={item.photoURL}
+                    src={`http://localhost:3000/api/images/products/${item.img}`}
                     alt={item.title}
                     className="w-full h-48 object-cover"
                 />
                 <div className="p-4 space-y-2">
                     <h4 className="font-heading text-lg">{item.title}</h4>
+                    <p className="text-gray-600">{item.description}</p>
                     {isLoggedIn ? (
                         <div className="flex justify-between items-center">
                             <p className="text-accent-coral font-semibold">${item.price}</p>
@@ -46,7 +47,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
                     onClick={() => setShowModal(false)}
                 >
                     <img
-                        src={item.photoURL}
+                        src={`http://localhost:3000/api/images/products/${item.img}`}
                         alt={item.title}
                         className="max-h-[80vh] max-w-[90vw] object-contain rounded"
                     />

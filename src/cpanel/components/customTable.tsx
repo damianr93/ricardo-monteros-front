@@ -64,10 +64,16 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
       let value = "";
       if (searchColumn.includes(".")) {
         const [parent, child] = searchColumn.split(".");
-        value = row[parent] && row[parent][child] ? row[parent][child] : "";
+        value = row[parent] && row[parent][child] !== undefined ? row[parent][child] : "";
       } else {
-        value = row[searchColumn] || "";
+        value = row[searchColumn] !== undefined ? row[searchColumn] : "";
       }
+
+      // 🔄 Convertimos booleanos como en el render
+      if (typeof value === "boolean") {
+        value = value ? "Si" : "No";
+      }
+
       return String(value).toLowerCase().includes(searchTerm.toLowerCase());
     });
   }, [searchColumn, searchTerm, tableData]);
@@ -95,12 +101,12 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
     if (value === undefined || value === null) {
       return "-";
     }
-    
+
     // Handle boolean values - convert to "Si" or "No"
     if (typeof value === "boolean") {
       return value ? "Si" : "No";
     }
-    
+
     return String(value);
   };
 
@@ -155,7 +161,11 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
                 <TableCell
                   key={column.field}
                   align={column.align || "center"}
-                  sx={{ fontWeight: "bold", backgroundColor: "rgba(110, 40, 99, 0.83)", color: "rgba(255, 250, 254, 0.83)" }}
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "coral",
+                    color: "rgba(0, 0, 0, 0.83)"
+                  }}
                 >
                   {column.headerName}
                 </TableCell>
@@ -164,8 +174,8 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
                 align="center"
                 sx={{
                   fontWeight: "bold",
-                  backgroundColor: "rgba(110, 40, 99, 0.83)",
-                  color: "rgba(255, 250, 254, 0.83)"
+                  backgroundColor: "coral",
+                  color: "rgba(0, 0, 0, 0.83)"
                 }}>
                 Acciones
               </TableCell>}
@@ -182,16 +192,16 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
                 <TableRow key={rowIndex} sx={rowStyle}>
                   {columns.map((column) => {
                     let value;
-                    
+
                     if (column.field.includes(".")) {
                       const [parent, child] = column.field.split(".");
-                      value = row[parent] && row[parent][child] !== undefined 
-                        ? row[parent][child] 
+                      value = row[parent] && row[parent][child] !== undefined
+                        ? row[parent][child]
                         : null;
                     } else {
                       value = row[column.field] !== undefined ? row[column.field] : null;
                     }
-                    
+
                     // Format the value (including boolean handling)
                     const displayValue = formatCellValue(value);
 

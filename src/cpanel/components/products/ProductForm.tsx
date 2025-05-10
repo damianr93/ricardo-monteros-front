@@ -17,7 +17,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
     const [categoryId, setCategoryId] = useState(initial?.category?.id || '')
     const [title, setTitle] = useState(initial?.title || '')
     const [description, setDescription] = useState(initial?.description || '')
-    const [previewImage, setPreviewImage] = useState<string | undefined>(initial?.photoURL)
+    const [previewImage, setPreviewImage] = useState<string | undefined>(initial?.img)
     const [imageFile, setImageFile] = useState<File | undefined>(undefined)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -29,7 +29,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
             setCategoryId(initial.category?.id || '')
             setTitle(initial.title || '')
             setDescription(initial.description || '')
-            setPreviewImage(initial.photoURL)
+            setPreviewImage(initial.img)
             setImageFile(undefined)
         }
     }, [initial])
@@ -46,15 +46,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         // Encontrar el objeto Category completo basado en el ID seleccionado
         const selectedCategory = categories.find(c => c.id === categoryId)
-        
+
         if (!selectedCategory) {
             alert('Por favor selecciona una categoría válida')
             return
         }
-        
+
         onSubmit({
             name,
             price: parseFloat(price),
@@ -62,12 +62,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
             category: selectedCategory,
             title,
             description,
-            photoURL: previewImage
+            img: previewImage
         }, imageFile)
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        
+        <div className="fixed top-[80px] left-0 right-0 bottom-0 bg-black bg-opacity-50 flex items-start justify-center z-[40] overflow-y-auto pt-10">
+
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow max-w-lg w-full space-y-4">
                 <h3 className="text-lg font-heading mb-2">
                     {initial ? 'Editar Producto' : 'Nuevo Producto'}
@@ -124,7 +126,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
                         <label className="block text-sm font-medium text-gray-700">
                             Imagen del producto
                         </label>
-                        
+
                         <div className="flex items-center space-x-4">
                             <button
                                 type="button"
@@ -133,12 +135,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
                             >
                                 Seleccionar archivo
                             </button>
-                            
+
                             <span className="text-sm text-gray-500">
                                 {imageFile ? imageFile.name : 'Ningún archivo seleccionado'}
                             </span>
                         </div>
-                        
+
                         <input
                             ref={fileInputRef}
                             type="file"
@@ -146,13 +148,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
                             onChange={handleImageChange}
                             className="hidden"
                         />
-                        
+
                         {/* Vista previa de la imagen */}
                         {previewImage && (
                             <div className="mt-2">
-                                <img 
-                                    src={previewImage} 
-                                    alt="Vista previa" 
+                                <img
+                                    src={`http://localhost:3000/api/images/products/${previewImage}`}
+                                    alt="Vista previa"
                                     className="max-h-40 rounded border"
                                 />
                             </div>

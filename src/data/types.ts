@@ -24,5 +24,5 @@ export interface Product {
   description?: string;
   user: string;
   category: Category;
-  photoURL?: string;
+  img?: string;
 }
