@@ -47,6 +47,7 @@ export const fetchMe = (): AppThunk => async (dispatch) => {
     dispatch(setUserLogged(user));
   } catch {
     console.log('falla')
+    dispatch(setUserDisloged())
     //isUserLogged en false
   }
 };

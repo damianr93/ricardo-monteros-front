@@ -38,14 +38,17 @@ const ProductList: React.FC = () => {
     setShowForm(true)
   }
 
-  const handleSubmit = (data: Omit<Product, 'id' | 'user'>, updateId?: string) => {
-    if (updateId) {
-      dispatch(updateProduct(updateId, data))
+  const handleSubmit = (
+    data: Omit<Product, 'id' | 'user'>,
+    imageFiles?: File[]
+  ) => {
+    if (editing?.id) {
+      dispatch(updateProduct(editing.id, data, imageFiles));
     } else {
-      dispatch(createProduct(data))
+      dispatch(createProduct(data, imageFiles));
     }
-    setShowForm(false)
-  }
+    setShowForm(false);
+  };
 
   const handleActionClick = (action: Action, row: any) => {
     if (action.name === "editar") {
@@ -78,7 +81,7 @@ const ProductList: React.FC = () => {
       {showForm && (
         <ProductForm
           initial={editing || undefined}
-          onSubmit={(data) => handleSubmit(data, editing?.id)}
+          onSubmit={(data, images) => handleSubmit(data, images)}
           onCancel={() => setShowForm(false)}
         />
       )}

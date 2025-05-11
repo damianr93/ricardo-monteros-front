@@ -25,100 +25,101 @@ export const fetchProducts = (): AppThunk => async dispatch => {
   }
 }
 
-export const createProduct = (payload: Omit<Product, 'id' | 'user'>): AppThunk => async dispatch => {
-  
+export const createProduct = (
+  payload: Omit<Product, 'id' | 'user'>,
+  images?: File[]
+): AppThunk => async dispatch => {
   try {
-      // Si hay una URL blob, necesitamos convertirla a un archivo
-    if (payload.img && payload.img.startsWith('blob:')) {
-      // Crear un FormData para enviar la imagen
-      const formData = new FormData();
+    const formData = new FormData()
 
-      // Primero añadimos todos los campos excepto img
-      Object.entries(payload).forEach(([key, value]) => {
-        if (key === 'category') {
-          // Para la categoría solo enviamos el ID
-          formData.append(key, typeof value === 'object' && value !== null ? String(value.id) : String(value));
-        } else if (key !== 'img') {
-          formData.append(key, String(value));
-        }
-      });
-
-      // Convertir la URL blob a un archivo y añadirlo al FormData
-      try {
-        const response = await fetch(payload.img);
-        const blob = await response.blob();
-        const fileFromBlob = new File([blob], 'image.jpg', { type: blob.type });
-        formData.append('img', fileFromBlob);
-      } catch (error) {
-        console.error('Error converting blob URL to file:', error);
+    // Agregar campos al formData
+    Object.entries(payload).forEach(([key, value]) => {
+      if (key === 'category') {
+        formData.append(key, typeof value === 'object' && value !== null && !Array.isArray(value) ? String(value.id) : String(value))
+      } else if (key !== 'img') {
+        formData.append(key, String(value))
       }
+    })
 
-      // Enviar con FormData
-      const res = await fetch(`${baseUrl}/products`, {
-        method: 'POST',
-        credentials: "include",
-        // No establecemos Content-Type, dejamos que el navegador lo configure automáticamente
-        body: formData
-      });
+    // Agregar imágenes
+    if (images && images.length > 0) {
+      for (const file of images) {
+        formData.append('images', file)
+      }
+    }
+
+    const res = await fetch(`${baseUrl}/products`, {
+      method: 'POST',
+      credentials: "include",
+      body: formData
+    })
+
     if (!res.ok) throw new Error('Error creating product')
     const data: Product = await res.json()
     dispatch(prodAddSuccess(data))
-    }
   } catch (err: any) {
     dispatch(prodFetchFailure(err.message))
   }
 }
 
-
-export const updateProduct = (id: string, payload: Partial<Omit<Product, 'id' | 'user'>>): AppThunk => async dispatch => {
+export const updateProduct = (
+  id: string,
+  payload: Partial<Omit<Product, 'id' | 'user'>>,
+  images?: File[]
+): AppThunk => async dispatch => {
   try {
-    // Si hay una URL blob, necesitamos convertirla a un archivo
-    if (payload.img && payload.img.startsWith('blob:')) {
-      // Crear un FormData para enviar la imagen
+    const hasNewImages = images && images.length > 0;
+
+    if (hasNewImages) {
       const formData = new FormData();
 
-      // Primero añadimos todos los campos excepto img
+      // Cargar campos al FormData
       Object.entries(payload).forEach(([key, value]) => {
         if (key === 'category') {
-          // Para la categoría solo enviamos el ID
-          formData.append(key, typeof value === 'object' && value !== null ? String(value.id) : String(value));
+          formData.append(
+            'category',
+            Array.isArray(value)
+              ? value.join(',')
+              : typeof value === 'object' && value !== null
+                ? String(value.id)
+                : String(value)
+          );
         } else if (key !== 'img') {
           formData.append(key, String(value));
         }
       });
 
-      // Convertir la URL blob a un archivo y añadirlo al FormData
-      try {
-        const response = await fetch(payload.img);
-        const blob = await response.blob();
-        const fileFromBlob = new File([blob], 'image.jpg', { type: blob.type });
-        formData.append('img', fileFromBlob);
-      } catch (error) {
-        console.error('Error converting blob URL to file:', error);
+      // ✅ Añadir imágenes anteriores al FormData
+      if (payload.img && Array.isArray(payload.img)) {
+        payload.img.forEach(existingName => {
+          formData.append('img', existingName);
+        });
       }
 
-      // Enviar con FormData
+      // ✅ Añadir archivos nuevos
+      images.forEach(file => {
+        formData.append('images', file);
+      });
+
       const res = await fetch(`${baseUrl}/products/${id}`, {
         method: 'PATCH',
-        credentials: "include",
-        // No establecemos Content-Type, dejamos que el navegador lo configure automáticamente
-        body: formData
+        credentials: 'include',
+        body: formData,
       });
 
       if (!res.ok) throw new Error('Error updating product');
       const data: Product = await res.json();
       dispatch(prodUpdateSuccess(data));
     } else {
-      // Si no hay URL blob, enviamos como JSON normalmente
+      // PATCH sin nuevas imágenes: enviar JSON + imágenes existentes
       const res = await fetch(`${baseUrl}/products/${id}`, {
         method: 'PATCH',
-        credentials: "include",
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...payload,
-          // Asegurarnos de que solo enviamos el ID de la categoría
-          category: payload.category?.id || payload.category
-        })
+          category: payload.category?.id || payload.category,
+        }),
       });
 
       if (!res.ok) throw new Error('Error updating product');
@@ -129,6 +130,7 @@ export const updateProduct = (id: string, payload: Partial<Omit<Product, 'id' | 
     dispatch(prodFetchFailure(err.message));
   }
 };
+
 
 export const deleteProduct = (id: string): AppThunk => async dispatch => {
   try {

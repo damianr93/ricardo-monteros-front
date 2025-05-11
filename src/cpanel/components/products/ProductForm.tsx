@@ -1,58 +1,76 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../../store/store'
-import { Product } from '../../../data/types'
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store/store';
+import { Product } from '../../../data/types';
 
 interface ProductFormProps {
-    initial?: Product
-    onSubmit: (data: Omit<Product, 'id' | 'user'>, imageFile?: File) => void
-    onCancel: () => void
+    initial?: Product;
+    onSubmit: (data: Omit<Product, 'id' | 'user'>, imageFiles?: File[]) => void;
+    onCancel: () => void;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }) => {
-    const categories = useSelector((state: RootState) => state.categories.list)
-    const [name, setName] = useState(initial?.name || '')
-    const [price, setPrice] = useState(initial?.price.toString() || '0')
-    const [available, setAvailable] = useState(initial?.available || false)
-    const [categoryId, setCategoryId] = useState(initial?.category?.id || '')
-    const [title, setTitle] = useState(initial?.title || '')
-    const [description, setDescription] = useState(initial?.description || '')
-    const [previewImage, setPreviewImage] = useState<string | undefined>(initial?.img)
-    const [imageFile, setImageFile] = useState<File | undefined>(undefined)
-    const fileInputRef = useRef<HTMLInputElement>(null)
+    const categories = useSelector((state: RootState) => state.categories.list);
+    const [name, setName] = useState(initial?.name || '');
+    const [price, setPrice] = useState(initial?.price.toString() || '0');
+    const [available, setAvailable] = useState(initial?.available || false);
+    const [categoryId, setCategoryId] = useState(initial?.category?.id || '');
+    const [title, setTitle] = useState(initial?.title || '');
+    const [description, setDescription] = useState(initial?.description || '');
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [existingImages, setExistingImages] = useState<string[]>([]);
+    const [previewImages, setPreviewImages] = useState<string[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (initial) {
-            setName(initial.name)
-            setPrice(initial.price.toString())
-            setAvailable(initial.available)
-            setCategoryId(initial.category?.id || '')
-            setTitle(initial.title || '')
-            setDescription(initial.description || '')
-            setPreviewImage(initial.img)
-            setImageFile(undefined)
+            setName(initial.name);
+            setPrice(initial.price.toString());
+            setAvailable(initial.available);
+            setCategoryId(initial.category?.id || '');
+            setTitle(initial.title || '');
+            setDescription(initial.description || '');
+            setExistingImages(initial.img ?? []);
+            setPreviewImages(initial.img ?? []);
+            setImageFiles([]);
         }
-    }, [initial])
+    }, [initial]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            setImageFile(file)
-            // Crear una URL temporal para previsualizar la imagen
-            const objectUrl = URL.createObjectURL(file)
-            setPreviewImage(objectUrl)
+        const newFiles = Array.from(e.target.files || []);
+        const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+
+        setImageFiles(prev => [...prev, ...newFiles]);
+        setPreviewImages(prev => [...prev, ...newPreviews]);
+    };
+
+    const handleRemoveImage = (index: number) => {
+        const isBlob = previewImages[index].startsWith('blob:');
+
+        if (isBlob) {
+            const blobIndexes = previewImages.map((src, i) => src.startsWith('blob:') ? i : -1).filter(i => i !== -1);
+            const fileIndex = blobIndexes.indexOf(index);
+            if (fileIndex !== -1) {
+                setImageFiles(prev => prev.filter((_, i) => i !== fileIndex));
+            }
+        } else {
+            const nonBlobIndexes = previewImages.map((src, i) => !src.startsWith('blob:') ? i : -1).filter(i => i !== -1);
+            const existingIndex = nonBlobIndexes.indexOf(index);
+            if (existingIndex !== -1) {
+                setExistingImages(prev => prev.filter((_, i) => i !== existingIndex));
+            }
         }
-    }
+
+        setPreviewImages(prev => prev.filter((_, i) => i !== index));
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        // Encontrar el objeto Category completo basado en el ID seleccionado
-        const selectedCategory = categories.find(c => c.id === categoryId)
-
+        const selectedCategory = categories.find(c => c.id === categoryId);
         if (!selectedCategory) {
-            alert('Por favor selecciona una categoría válida')
-            return
+            alert('Por favor selecciona una categoría válida');
+            return;
         }
 
         onSubmit({
@@ -62,128 +80,56 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
             category: selectedCategory,
             title,
             description,
-            img: previewImage
-        }, imageFile)
-    }
+            img: existingImages
+        }, imageFiles);
+    };
 
     return (
-        
         <div className="fixed top-[80px] left-0 right-0 bottom-0 bg-black bg-opacity-50 flex items-start justify-center z-[40] overflow-y-auto pt-10">
-
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow max-w-lg w-full space-y-4">
-                <h3 className="text-lg font-heading mb-2">
-                    {initial ? 'Editar Producto' : 'Nuevo Producto'}
-                </h3>
-
+                <h3 className="text-lg font-heading mb-2">{initial ? 'Editar Producto' : 'Nuevo Producto'}</h3>
                 <div className="grid grid-cols-1 gap-4">
-                    <input
-                        type="text"
-                        placeholder="Nombre"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        required
-                        className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green"
-                    />
-
-                    <input
-                        type="number"
-                        placeholder="Precio"
-                        value={price}
-                        onChange={e => setPrice(e.target.value)}
-                        required
-                        className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green"
-                    />
-
-                    <select
-                        value={categoryId}
-                        onChange={e => setCategoryId(e.target.value)}
-                        required
-                        className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green"
-                    >
+                    <input type="text" placeholder="Nombre" value={name} onChange={e => setName(e.target.value)} required className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green" />
+                    <input type="number" placeholder="Precio" value={price} onChange={e => setPrice(e.target.value)} required className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green" />
+                    <select value={categoryId} onChange={e => setCategoryId(e.target.value)} required className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green">
                         <option value="" disabled>Selecciona categoría</option>
-                        {categories.map(c => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
+                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
+                    <input type="text" placeholder="Título (opcional)" value={title} onChange={e => setTitle(e.target.value)} className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green" />
+                    <textarea placeholder="Descripción (opcional)" value={description} onChange={e => setDescription(e.target.value)} className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green" />
 
-                    <input
-                        type="text"
-                        placeholder="Título (opcional)"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green"
-                    />
-
-                    <textarea
-                        placeholder="Descripción (opcional)"
-                        value={description}
-                        onChange={e => setDescription(e.target.value)}
-                        className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green"
-                    />
-
-                    {/* Campo para subir imagen */}
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
-                            Imagen del producto
-                        </label>
-
+                        <label className="block text-sm font-medium text-gray-700">Imágenes del producto</label>
                         <div className="flex items-center space-x-4">
-                            <button
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
-                            >
-                                Seleccionar archivo
-                            </button>
-
-                            <span className="text-sm text-gray-500">
-                                {imageFile ? imageFile.name : 'Ningún archivo seleccionado'}
-                            </span>
+                            <button type="button" onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition">Seleccionar archivo</button>
+                            <span className="text-sm text-gray-500">{imageFiles.length > 0 ? imageFiles.map(f => f.name).join(', ') : 'Ningún archivo seleccionado'}</span>
                         </div>
+                        <input ref={fileInputRef} type="file" accept="image/*" multiple name="images" onChange={handleImageChange} className="hidden" />
 
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="hidden"
-                        />
-
-                        {/* Vista previa de la imagen */}
-                        {previewImage && (
-                            <div className="mt-2">
-                                <img
-                                    src={`http://localhost:3000/api/images/products/${previewImage}`}
-                                    alt="Vista previa"
-                                    className="max-h-40 rounded border"
-                                />
+                        {previewImages.length > 0 && (
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                                {previewImages.map((src, index) => (
+                                    <div key={index} className="relative group">
+                                        <img src={src.startsWith('blob:') ? src : `http://localhost:3000/api/images/products/${src}`} alt={`Preview ${index}`} className="max-h-40 rounded border" />
+                                        <button type="button" onClick={() => handleRemoveImage(index)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs opacity-80 group-hover:opacity-100">x</button>
+                                    </div>
+                                ))}
                             </div>
                         )}
-                    </div>
 
-                    <div className="flex items-center">
-                        <input
-                            id="prod-available"
-                            type="checkbox"
-                            checked={available}
-                            onChange={e => setAvailable(e.target.checked)}
-                            className="mr-2"
-                        />
-                        <label htmlFor="prod-available">Disponible</label>
+                        <div className="flex items-center">
+                            <input id="prod-available" type="checkbox" checked={available} onChange={e => setAvailable(e.target.checked)} className="mr-2" />
+                            <label htmlFor="prod-available">Disponible</label>
+                        </div>
                     </div>
                 </div>
-
                 <div className="flex justify-end space-x-2">
-                    <button type="button" onClick={onCancel} className="px-4 py-2 rounded border">
-                        Cancelar
-                    </button>
-                    <button type="submit" className="px-4 py-2 bg-accent-coral text-white rounded hover:bg-accent-coral-light transition">
-                        {initial ? 'Actualizar' : 'Crear'}
-                    </button>
+                    <button type="button" onClick={onCancel} className="px-4 py-2 rounded border">Cancelar</button>
+                    <button type="submit" className="px-4 py-2 bg-accent-coral text-white rounded hover:bg-accent-coral-light transition">{initial ? 'Actualizar' : 'Crear'}</button>
                 </div>
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default ProductForm
+export default ProductForm;

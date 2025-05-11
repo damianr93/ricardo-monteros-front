@@ -24,5 +24,5 @@ export interface Product {
   description?: string;
   user: string;
   category: Category;
-  img?: string;
+  img?: string[] | undefined;
 }

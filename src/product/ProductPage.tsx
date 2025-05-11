@@ -13,7 +13,6 @@ import { fetchMe, logoutUser } from '../store/logged/thunks'
 import { fetchProducts } from '../store/products/thunks'
 import { Product } from '../data/types'
 
-
 const ProductPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -23,27 +22,28 @@ const ProductPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<Product[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { isLoggedIn } = useSelector((state: RootState) => state.isLoggedUser)
-  const {list: products} = useSelector((state:RootState) => state.products)
-  const dispatch = useDispatch<AppDispatch>();
+  const { list: products } = useSelector((state: RootState) => state.products)
+  const dispatch = useDispatch<AppDispatch>()
+
   useEffect(() => {
-    dispatch(fetchMe());
+    dispatch(fetchMe())
     dispatch(fetchProducts())
-  }, [dispatch]);
+  }, [dispatch])
 
   useEffect(() => {
     const q = searchParams.get('item')
-    if (q && q !== selectedCategory) {
+    if (q && q.toLowerCase() !== selectedCategory.toLowerCase()) {
       setSelectedCategory(q)
     }
   }, [searchParams])
 
-  const handleSelectCategory = (cat: string) => {
-    setSelectedCategory(cat)
-    searchParams.set('item', cat)
+  const handleSelectCategory = (catName: string) => {
+    setSelectedCategory(catName)
+    searchParams.set('item', catName)
     setSearchParams(searchParams)
     setMode('browse')
     setSidebarOpen(false)
-    navigate(`/catalogo?item=${cat}`, { replace: true })
+    navigate(`/catalogo?item=${catName}`, { replace: true })
   }
 
   const handleLoginClick = () => { setMode('login'); setSidebarOpen(false) }
@@ -61,11 +61,11 @@ const ProductPage: React.FC = () => {
   }
   const handleCheckoutClick = () => setMode('checkout')
   const handlePaymentSuccess = () => { setCartItems([]); setMode('browse') }
-  const onLogoutClick = () => {
-    dispatch(logoutUser())
-  }
+  const onLogoutClick = () => dispatch(logoutUser())
 
-  const itemsToShow = products.filter(item => item.category.id === selectedCategory)
+  const itemsToShow = products.filter(
+    item => item.category.name.toLowerCase() === selectedCategory.toLowerCase()
+  )
 
   return (
     <div className="flex flex-col lg:flex-row pt-16 min-h-screen bg-neutral-50">
@@ -78,7 +78,7 @@ const ProductPage: React.FC = () => {
         {sidebarOpen ? <FaChevronLeft className="w-3 h-3" /> : <FaChevronRight className="w-3 h-3" />}
       </button>
 
-      {/* Sidebar: hidden on mobile unless open */}
+      {/* Sidebar */}
       <Sidebar
         className={`${sidebarOpen ? 'block' : 'hidden'} lg:block`}
         selectedId={selectedCategory}
@@ -97,11 +97,19 @@ const ProductPage: React.FC = () => {
         {mode === 'login' && <LoginForm onSuccess={handleAuthSuccess} />}
         {mode === 'register' && <RegisterForm onSuccess={handleAuthSuccess} />}
         {mode === 'browse' && (
-          <ProductList
-            items={itemsToShow}
-            isLoggedIn={isLoggedIn}
-            onAddToCart={handleAddToCart}
-          />
+          <>
+            {products.length === 0 ? (
+              <p className="text-center text-gray-500 italic">Cargando productos...</p>
+            ) : itemsToShow.length === 0 ? (
+              <p className="text-center text-gray-500 italic">No hay productos disponibles en esta categoría.</p>
+            ) : (
+              <ProductList
+                items={itemsToShow}
+                isLoggedIn={isLoggedIn}
+                onAddToCart={handleAddToCart}
+              />
+            )}
+          </>
         )}
         {mode === 'checkout' && (
           <PaymentForm

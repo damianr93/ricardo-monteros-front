@@ -76,30 +76,36 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div>
         <h3 className="text-xl font-semibold text-gray-800 uppercase mb-4">Categorías</h3>
         <ul className="space-y-2">
-          {categories.map(cat => (
-            cat.available && (
-              <li key={cat.id}>
-                <button
-                  onClick={() => onSelect(cat.id)}
-                  className={`w-full text-left px-4 py-2 rounded-md transition focus:outline-none ${selectedId === cat.id
-                    ? 'bg-accent-coral text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                >
-                  {cat.name.toUpperCase()}
-                </button>
-              </li>
-            )
-          ))}
+          {categories.length === 0 ? (
+            <p className="text-gray-500 italic">No hay categorías disponibles</p>
+          ) : (
+            <ul className="space-y-2">
+              {categories.map(cat => (
+                cat.available && (
+                  <li key={cat.id}>
+                    <button
+                      onClick={() => onSelect(cat.name)}
+                      className={`w-full text-left px-4 py-2 rounded-md transition focus:outline-none ${selectedId === cat.name
+                          ? 'bg-accent-coral text-white'
+                          : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                    >
+                      {cat.name.toUpperCase()}
+                    </button>
+                  </li>
+                )
+              ))}
+            </ul>
+          )}
         </ul>
       </div>
 
       {/* Carrito (solo si está logueado) */}
       {isLoggedIn && (
         <div className="mt-8">
-          <h3 className="text-xl font-semibold text-gray-800 uppercase mb-4">Carrito</h3>
+          <h3 className="text-xl font-semibold text-gray-800 uppercase mb-4">Pedido</h3>
           {cartItems.length === 0 ? (
-            <p className="text-gray-500">Tu carrito está vacío</p>
+            <p className="text-gray-500">Tu pedido está vacío</p>
           ) : (
             <ul className="space-y-2 max-h-40 overflow-auto mb-4">
               {uniqueItems.map(id => {
@@ -126,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={onCheckoutClick}
             className="w-full bg-accent-coral text-white py-2 rounded-md hover:bg-accent-coral-light transition disabled:opacity-50"
           >
-            Finalizar Compra
+            Realizar pedido
           </button>
         </div>
       )}
