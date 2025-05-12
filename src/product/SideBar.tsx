@@ -86,8 +86,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <button
                       onClick={() => onSelect(cat.name)}
                       className={`w-full text-left px-4 py-2 rounded-md transition focus:outline-none ${selectedId === cat.name
-                          ? 'bg-accent-coral text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
+                        ? 'bg-accent-coral text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
                         }`}
                     >
                       {cat.name.toUpperCase()}
@@ -114,14 +114,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <li key={id} className="flex justify-between items-center text-sm">
                     <div className="flex items-center space-x-2">
                       <span>{item.title}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span>x{counts[id]}</span>
                       <button
                         onClick={() => onRemoveFromCart(id)}
                         className="text-red-500 hover:text-red-700 transition"
                       >
-                        ×
+                        🗑️
                       </button>
                     </div>
-                    <span>x{counts[id]}</span>
                   </li>
                 )
               })}

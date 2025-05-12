@@ -106,16 +106,27 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel }
                         </div>
                         <input ref={fileInputRef} type="file" accept="image/*" multiple name="images" onChange={handleImageChange} className="hidden" />
 
-                        {previewImages.length > 0 && (
-                            <div className="mt-2 grid grid-cols-2 gap-2">
-                                {previewImages.map((src, index) => (
-                                    <div key={index} className="relative group">
-                                        <img src={src.startsWith('blob:') ? src : `http://localhost:3000/api/images/products/${src}`} alt={`Preview ${index}`} className="max-h-40 rounded border" />
-                                        <button type="button" onClick={() => handleRemoveImage(index)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs opacity-80 group-hover:opacity-100">x</button>
+                        <div className="grid grid-cols-3 gap-2">
+                            {previewImages.map((src, index) => (
+                                <div key={index} className="relative w-full aspect-square border rounded overflow-hidden">
+                                    <img
+                                        src={src.startsWith('blob:') ? src : `http://localhost:3000/api/images/products/${src}`}
+                                        alt={`Preview ${index}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute top-0 left-0 right-0 bg-red-600 bg-opacity-80 text-white flex justify-center items-center h-8">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveImage(index)}
+                                            className="text-white hover:scale-110 transition-transform"
+                                            aria-label="Eliminar imagen"
+                                        >
+                                            🗑️
+                                        </button>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                </div>
+                            ))}
+                        </div>
 
                         <div className="flex items-center">
                             <input id="prod-available" type="checkbox" checked={available} onChange={e => setAvailable(e.target.checked)} className="mr-2" />

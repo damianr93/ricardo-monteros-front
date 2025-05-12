@@ -1,8 +1,10 @@
-// File: src/components/Navbar.tsx
 import React, { useState, useEffect, useCallback } from 'react'
 import { HiMenu, HiX } from 'react-icons/hi'
 import { FaInstagram, FaFacebookF, FaWhatsapp, FaChevronRight } from 'react-icons/fa'
 import { NavLink } from 'react-router'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../store/store'
+import { fetchCategories } from '../store/categories/thunks'
 
 interface NavItem {
   label: string
@@ -10,31 +12,32 @@ interface NavItem {
   items?: NavItem[]
 }
 
-const navItems: NavItem[] = [
-  { label: 'Inicio', to: '/' },
-  { label: 'Quiénes Somos', to: '/nosotros' },
-  {
-    label: 'Productos',
-    items: [
-      { label: 'Flores', to: '/catalogo?item=flores' },
-      { label: 'Plantas', to: '/catalogo?item=plantas' },
-      { label: 'Cerámica', to: '/catalogo?item=ceramica' },
-      { label: 'Coronas', to: '/catalogo?item=coronas' },
-    ],
-  },
-  { label: 'Contacto', to: '/contacto' },
-]
-
 const Navbar: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [openMenus, setOpenMenus] = useState<Set<string>>(new Set())
-  const [scrolled, setScrolled] = useState(false)
+  const [scrolled] = useState(false)
+
+  const dispatch = useDispatch<AppDispatch>()
+  const categories = useSelector((state: RootState) => state.categories.list)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
+    dispatch(fetchCategories())
   }, [])
+
+  const dynamicNavItems: NavItem[] = [
+    { label: 'Inicio', to: '/' },
+    { label: 'Quiénes Somos', to: '/nosotros' },
+    {
+      label: 'Productos',
+      items: categories
+        .filter(cat => cat.available) 
+        .map(cat => ({
+          label: cat.name,
+          to: `/catalogo?item=${encodeURIComponent(cat.name)}`
+        })),
+    },
+    { label: 'Contacto', to: '/contacto' },
+  ]
 
   const toggleSubmenu = useCallback((label: string) => {
     setOpenMenus(prev => {
@@ -55,7 +58,7 @@ const Navbar: React.FC = () => {
 
           {/* Menú Desktop */}
           <nav className="hidden md:flex space-x-8 font-heading text-neutral-800">
-            {navItems.map(item => (
+            {dynamicNavItems.map(item => (
               <div key={item.label} className="relative group py-2">
                 {item.items ? (
                   <>
@@ -69,9 +72,7 @@ const Navbar: React.FC = () => {
                           <li key={sub.label}>
                             <NavLink
                               to={sub.to!}
-                              className={({ isActive }) =>
-                                `block px-4 py-2 text-sm ${isActive ? 'bg-accent-coral text-white' : 'text-neutral-700 hover:bg-neutral-100 hover:text-accent-coral'}`
-                              }
+                              className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-accent-coral"
                             >
                               {sub.label}
                             </NavLink>
@@ -96,13 +97,13 @@ const Navbar: React.FC = () => {
 
           {/* Iconos + Menú móvil */}
           <div className="flex items-center space-x-4">
-            <a href="https://www.instagram.com/ricardo_montero/" className="text-neutral-800 hover:text-accent-coral transition">
+            <a href="#" className="text-neutral-800 hover:text-accent-coral transition">
               <FaInstagram className="w-5 h-5" />
             </a>
-            <a href="https://www.facebook.com/ricardo_montero/" className="text-neutral-800 hover:text-accent-coral transition">
+            <a href="#" className="text-neutral-800 hover:text-accent-coral transition">
               <FaFacebookF className="w-5 h-5" />
             </a>
-            <a href="https://wa.me/5493534210083" className="text-neutral-800 hover:text-accent-coral transition">
+            <a href="#" className="text-neutral-800 hover:text-accent-coral transition">
               <FaWhatsapp className="w-5 h-5" />
             </a>
 
@@ -129,7 +130,7 @@ const Navbar: React.FC = () => {
           <HiX className="w-6 h-6" />
         </button>
         <ul className="space-y-4 font-body text-neutral-800">
-          {navItems.map(item => {
+          {dynamicNavItems.map(item => {
             const hasChildren = !!item.items
             const isOpen = openMenus.has(item.label)
             return (
