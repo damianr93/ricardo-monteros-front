@@ -24,6 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onSelect,
   onLoginClick,
   onRegisterClick,
+  onLogoutClick,
   cartItems,
   onCheckoutClick,
   onRemoveFromCart,
@@ -44,21 +45,34 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside className={`${className} w-64 bg-white mt-10 p-8 border-r border-gray-200 sticky top-16 h-[calc(100vh-4rem)] overflow-auto`}>
-      <div className="mb-6 space-y-2">
-        <button
-          onClick={onLoginClick}
-          className="w-full bg-accent-coral text-black py-2 rounded-md hover:bg-accent-coral transition"
-        >
-          Iniciar Sesión
-        </button>
-        <button
-          onClick={onRegisterClick}
-          className="w-full border border-primary text-primary py-2 rounded-md hover:bg-primary-light hover:bg-accent-coral hover:text-white transition"
-        >
-          Registrarse
-        </button>
-      </div>
+      {/* Bloque de autenticación */}
+      {!isLoggedIn ? (
+        <div className="mb-6 space-y-2">
+          <button
+            onClick={onLoginClick}
+            className="w-full bg-accent-coral text-black py-2 rounded-md hover:bg-accent-coral transition"
+          >
+            Iniciar Sesión
+          </button>
+          <button
+            onClick={onRegisterClick}
+            className="w-full border border-accent-coral text-accent-coral py-2 rounded-md hover:bg-accent-coral-light hover:text-white transition"
+          >
+            Registrarse
+          </button>
+        </div>
+      ) : (
+        <div className="mb-6">
+          <button
+            onClick={onLogoutClick}
+            className="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      )}
 
+      {/* Categorías */}
       <div>
         <h3 className="text-xl font-semibold text-gray-800 uppercase mb-4">Categorías</h3>
         <ul className="space-y-2">
