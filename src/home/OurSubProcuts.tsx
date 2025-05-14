@@ -1,28 +1,43 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination, Navigation } from 'swiper/modules'
-
-// Estilos ya declarados en main.ts como mencionaste
-
-interface Block {
-    titleLines: [string, string?]
-    backgroundImage: string
-    href: string
-}
-
-const blocks: Block[] = [
-    { titleLines: ['FLORES'], backgroundImage: '/img/flores.png', href: '/catalogo?item=flores' },
-    { titleLines: ['PLANTAS'], backgroundImage: '/img/plantas.jpg', href: '/catalogo?item=plantas' },
-    { titleLines: ['CERÁMICAS'], backgroundImage: '/img/ceramica.png', href: '/catalogo?item=ceramica' },
-    { titleLines: ['CORONAS'], backgroundImage: '/img/corona.png', href: '/catalogo?item=coronas' },
-]
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../store/store'
+import { fetchCategories } from '../store/categories/thunks'
+import { fetchProducts } from '../store/products/thunks'
 
 const SubproductosCarousel: React.FC = () => {
-    // Registramos los módulos de Swiper
+    const { list: categories } = useSelector((state: RootState) => state.categories)
+    const { list: products } = useSelector((state: RootState) => state.products)
+    const dispatch = useDispatch<AppDispatch>()
+
     useEffect(() => {
-        // Registrar Swiper y sus componentes (enfoque alternativo)
-        register();
-    }, []);
+        dispatch(fetchCategories())
+        dispatch(fetchProducts())
+    }, [])
+
+    const blocks = useMemo(() => {
+        return categories
+            .filter(c => c.available)
+            .map(category => {
+                const product = products.find(
+                    p => p.category?.id === category.id && p.img && p.img.length > 0
+                )
+
+                if (!product) return null
+
+                return {
+                    titleLines: [category.name.toUpperCase()],
+                    backgroundImage: product.img?.[0] ?? '',
+                    href: `/catalogo?item=${encodeURIComponent(category.name)}`,
+                }
+            })
+            .filter((block): block is {
+                titleLines: string[]
+                backgroundImage: string
+                href: string
+            } => block !== null)
+    }, [categories, products])
 
     return (
         <section className="py-12 bg-neutral-100">
