@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../store/store'
 import { fetchCategories } from '../store/categories/thunks'
 import { fetchProducts } from '../store/products/thunks'
+import Loading from '../components/loading'
 
 const SubproductosCarousel: React.FC = () => {
     const { list: categories } = useSelector((state: RootState) => state.categories)
@@ -59,7 +60,7 @@ const SubproductosCarousel: React.FC = () => {
         return (
             <section className="py-12 bg-neutral-100">
                 <div className="container mx-auto px-4 text-center">
-                    <p>Cargando productos...</p>
+                    <Loading/>
                 </div>
             </section>
         )

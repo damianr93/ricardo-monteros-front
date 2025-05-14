@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Product } from '../data/types'
+import Loading from '../components/loading'
 
 interface PaymentFormProps {
     items: Product[]
@@ -118,7 +119,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ items, total, onSuccess }) =>
                 disabled={loading}
                 className="w-full bg-accent-coral text-white py-3 rounded-xl font-semibold hover:bg-accent-coral-light transition-transform transform hover:-translate-y-0.5 disabled:opacity-50"
             >
-                {loading ? 'Enviando...' : 'Enviar pedido'}
+                {loading ? <Loading/> : 'Enviar pedido'}
             </button>
         </form>
     )

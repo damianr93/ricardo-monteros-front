@@ -1,41 +1,47 @@
-import { AppThunk } from "../store"
-import { setUserDisloged, setUserLogged } from "./userLogged.ts";
+import { AppThunk } from "../store";
 import { toast } from "react-toastify";
-import { fetchProducts } from "../products/thunks.ts";
+import { fetchProducts } from "../products/thunks";
+import { setUserDisloged, setUserError, setUserLoading, setUserLogged } from "./userLogged";
 
-export const loginUser = (dataToLogin: { email: string, password: string }): AppThunk => {
-  return async (dispatch) => {
-
+export const loginUser =
+  (dataToLogin: { email: string; password: string }): AppThunk =>
+  async (dispatch) => {
+    dispatch(setUserLoading());
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(dataToLogin)
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(dataToLogin),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok && data.user) {
         dispatch(setUserLogged(data.user));
-        dispatch(fetchProducts());
+        dispatch(fetchProducts());   
       } else {
-        toast.error('Algo salio mal, intente nuevamente', {
-          position: 'top-left'
-        })
+        dispatch(setUserError("Credenciales inválidas"));
+        toast.error("Algo salió mal, intente nuevamente", {
+          position: "top-left",
+        });
       }
-
-    } catch (error) {
-      console.error("Failed to fetch users:", error);
-      toast.error('Algo salio mal, intente nuevamente', {
-        position: 'top-left'
-      })
+    } catch (error: any) {
+      dispatch(
+        setUserError(error.message ?? "Error de red, intente nuevamente")
+      );
+      console.error("Failed to login:", error);
+      toast.error("Algo salió mal, intente nuevamente", {
+        position: "top-left",
+      });
     }
-  }
-}
+  };
 
 export const fetchMe = (): AppThunk => async (dispatch) => {
-
+  dispatch(setUserLoading());
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
       method: "PUT",
@@ -45,29 +51,28 @@ export const fetchMe = (): AppThunk => async (dispatch) => {
     const user = await res.json();
     dispatch(setUserLogged(user));
   } catch {
-    console.log('falla')
-    dispatch(setUserDisloged())
-    //isUserLogged en false
+    dispatch(setUserDisloged());
+    // no toast aquí, es silencioso
   }
 };
 
 export const logoutUser = (): AppThunk => async (dispatch) => {
-
+  dispatch(setUserLoading());
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/logout`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || "No se pudo cerrar sesión");
     }
-
     dispatch(setUserDisloged());
-  } catch {
-    console.log('falla')
-    //isUserLogged en false
+  } catch (error: any) {
+    dispatch(setUserError(error.message ?? "Error al cerrar sesión"));
+    console.error("Failed to logout:", error);
   }
 };
-
-

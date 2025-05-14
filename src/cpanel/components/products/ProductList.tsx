@@ -6,6 +6,7 @@ import { createProduct, deleteProduct, fetchProducts, updateProduct } from '../.
 import { Product } from '../../../data/types'
 import ProductForm from './ProductForm'
 import CustomTable, { Action, Column } from '../customTable'
+import Loading from '../../../components/loading'
 
 const columns: Column[] = [
   { field: "name", headerName: "Nombre Producto", align: "left" },
@@ -26,8 +27,7 @@ const ProductList: React.FC = () => {
   const { list: products, loading, error } = useSelector((state: RootState) => state.products)
   const [editing, setEditing] = useState<Product | null>(null)
   const [showForm, setShowForm] = useState(false)
-
-  console.log(products)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     dispatch(fetchProducts())
@@ -38,16 +38,24 @@ const ProductList: React.FC = () => {
     setShowForm(true)
   }
 
-  const handleSubmit = (
+  const handleSubmit = async (
     data: Omit<Product, 'id' | 'user'>,
     imageFiles?: File[]
   ) => {
-    if (editing?.id) {
-      dispatch(updateProduct(editing.id, data, imageFiles));
-    } else {
-      dispatch(createProduct(data, imageFiles));
+    setIsSubmitting(true)
+    try {
+      if (editing?.id) {
+        await dispatch(updateProduct(editing.id, data, imageFiles))
+      } else {
+        await dispatch(createProduct(data, imageFiles))
+      }
+      setShowForm(false)
+    } catch (error) {
+      console.error('Error al guardar el producto:', error)
+      // Opcionalmente puedes mostrar un mensaje de error aquí
+    } finally {
+      setIsSubmitting(false)
     }
-    setShowForm(false);
   };
 
   const handleActionClick = (action: Action, row: any) => {
@@ -60,29 +68,41 @@ const ProductList: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="relative">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-heading">Productos</h2>
-        <button onClick={handleAdd} className="p-2 bg-accent-coral text-white rounded">
+        <button
+          onClick={handleAdd}
+          className="p-2 bg-accent-coral text-white rounded flex items-center gap-2"
+          disabled={loading}
+        >
           <FaPlus /> Añadir
         </button>
       </div>
-      {loading && <p>Cargando...</p>}
-      {error && <p className="text-red-500">{error}</p>}
 
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loading />
+        </div>
+      ) : error ? (
+        <p className="text-red-500 p-4 bg-red-50 rounded">{error}</p>
+      ) : products.length === 0 ? (
+        <p className="text-center py-10 text-gray-500">No hay productos disponibles</p>
+      ) : (
+        <CustomTable
+          columns={columns}
+          data={products}
+          actions={actions}
+          onActionClick={handleActionClick}
+        />
+      )}
 
-      <CustomTable
-        columns={columns}
-        data={products}
-        actions={actions}
-        onActionClick={handleActionClick}
-
-      />
       {showForm && (
         <ProductForm
           initial={editing || undefined}
           onSubmit={(data, images) => handleSubmit(data, images)}
           onCancel={() => setShowForm(false)}
+          isSubmitting={isSubmitting}
         />
       )}
     </div>

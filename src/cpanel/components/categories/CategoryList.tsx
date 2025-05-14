@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa'
 import { AppDispatch, RootState } from '../../../store/store'
 import { Category } from '../../../data/types'
 import { createCategory, deleteCategory, fetchCategories, updateCategory } from '../../../store/categories/thunks'
 import CategoryForm from './CategoryForm'
-import CustomTable, { Action, Column } from './../customTable';
-
+import CustomTable, { Action, Column } from './../customTable'
+import Loading from '../../../components/loading'
 
 const columns: Column[] = [
   { field: "name", headerName: "Nombre categoria", align: "left" },
   { field: "available", headerName: "Activa", align: "left" },
-
 ];
 
 const actions: Action[] = [
@@ -20,25 +18,42 @@ const actions: Action[] = [
   { name: "eliminar", icon: <FaTrash />, color: "secondary", tooltip: "Eliminar" }
 ];
 
-
 const CategoryList: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useDispatch<AppDispatch>() as AppDispatch
   const { list: categories, loading, error } = useSelector((state: RootState) => state.categories)
   const [editing, setEditing] = useState<Category | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  useEffect(() => { dispatch(fetchCategories()) }, [dispatch])
+  useEffect(() => {
+    dispatch(fetchCategories())
+  }, [dispatch])
 
-  const handleAdd = () => { setEditing(null); setShowForm(true) }
-  const handleSubmit = (name: string, available: boolean) => {
-    if (editing) dispatch(updateCategory(editing.id, { name, available }))
-    else dispatch(createCategory({ name, available }))
-    setShowForm(false)
+  const handleAdd = () => {
+    setEditing(null)
+    setShowForm(true)
+  }
+
+  const handleSubmit = async (name: string, available: boolean) => {
+    setIsSubmitting(true)
+    try {
+      if (editing) {
+        await dispatch(updateCategory(editing.id, { name, available }))
+      } else {
+        await dispatch(createCategory({ name, available }))
+      }
+      setShowForm(false)
+    } catch (error) {
+      console.error('Error al guardar la categoría:', error)
+      // Opcionalmente puedes mostrar un mensaje de error aquí
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleActionClick = (action: Action, row: any) => {
     if (action.name === "editar") {
-      setEditing(row);
+      setEditing(row)
       setShowForm(true)
     } else if (action.name === "eliminar") {
       dispatch(deleteCategory(row.id))
@@ -46,23 +61,43 @@ const CategoryList: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="relative">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-heading">Categorías</h2>
-        <button onClick={handleAdd} className="p-2 bg-accent-coral text-white rounded"><FaPlus /> Añadir</button>
+        <button
+          onClick={handleAdd}
+          className="p-2 bg-accent-coral text-white rounded flex items-center gap-2"
+          disabled={loading}
+        >
+          <FaPlus /> Añadir
+        </button>
       </div>
-      {loading && <p>Cargando...</p>}
-      {error && <p className="text-red-500">{error}</p>}
 
-      <CustomTable
-        columns={columns}
-        data={categories}
-        actions={actions}
-        onActionClick={handleActionClick}
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loading />
+        </div>
+      ) : error ? (
+        <p className="text-red-500 p-4 bg-red-50 rounded">{error}</p>
+      ) : categories.length === 0 ? (
+        <p className="text-center py-10 text-gray-500">No hay categorías disponibles</p>
+      ) : (
+        <CustomTable
+          columns={columns}
+          data={categories}
+          actions={actions}
+          onActionClick={handleActionClick}
+        />
+      )}
 
-      />
-
-      {showForm && <CategoryForm initial={editing} onCancel={() => setShowForm(false)} onSubmit={handleSubmit} />}
+      {showForm && (
+        <CategoryForm
+          initial={editing}
+          onCancel={() => setShowForm(false)}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+        />
+      )}
     </div>
   )
 }

@@ -69,7 +69,6 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
         value = row[searchColumn] !== undefined ? row[searchColumn] : "";
       }
 
-      // 🔄 Convertimos booleanos como en el render
       if (typeof value === "boolean") {
         value = value ? "Si" : "No";
       }
@@ -97,13 +96,11 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
     setIsModified(false);
   };
 
-  // Helper function to format cell values
   const formatCellValue = (value: any): string => {
     if (value === undefined || value === null) {
       return "-";
     }
 
-    // Handle boolean values - convert to "Si" or "No"
     if (typeof value === "boolean") {
       return value ? "Si" : "No";
     }
