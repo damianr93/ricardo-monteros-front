@@ -24,7 +24,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   onSelect,
   onLoginClick,
   onRegisterClick,
-  onLogoutClick,
   cartItems,
   onCheckoutClick,
   onRemoveFromCart,

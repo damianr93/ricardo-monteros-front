@@ -83,6 +83,7 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
     : filteredData;
 
   const handleChangePage = (event: unknown, newPage: number) => {
+    console.log(event)
     setPage(newPage);
   };
 
