@@ -2,13 +2,16 @@
 import React, { useState, useEffect } from 'react'
 import { FaChevronRight, FaChevronLeft } from 'react-icons/fa'
 import { useNavigate, useSearchParams } from 'react-router'
-import { ExampleItem, PRODUCTOS } from '../data/items'
 import Sidebar from './SideBar'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
 import ProductList from './ProductList'
 import PaymentForm from './PaymentForm'
-
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../store/store'
+import { fetchMe, logoutUser } from '../store/logged/thunks'
+import { fetchProducts } from '../store/products/thunks'
+import { Product } from '../data/types'
 
 const ProductPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -16,32 +19,37 @@ const ProductPage: React.FC = () => {
   const itemParam = searchParams.get('item') || 'flores'
   const [selectedCategory, setSelectedCategory] = useState<string>(itemParam)
   const [mode, setMode] = useState<'browse' | 'login' | 'register' | 'checkout'>('browse')
-  const [cartItems, setCartItems] = useState<ExampleItem[]>([])
+  const [cartItems, setCartItems] = useState<Product[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const isLoggedIn = true // Simulación de estado
+  const { isLoggedIn } = useSelector((state: RootState) => state.isLoggedUser)
+  const { list: products } = useSelector((state: RootState) => state.products)
+  const dispatch = useDispatch<AppDispatch>()
 
-  // Sincroniza selectedCategory con query param
+  useEffect(() => {
+    dispatch(fetchMe())
+    dispatch(fetchProducts())
+  }, [dispatch])
+
   useEffect(() => {
     const q = searchParams.get('item')
-    if (q && q !== selectedCategory) {
+    if (q && q.toLowerCase() !== selectedCategory.toLowerCase()) {
       setSelectedCategory(q)
     }
   }, [searchParams])
 
-  const handleSelectCategory = (cat: string) => {
-    setSelectedCategory(cat)
-    searchParams.set('item', cat)
+  const handleSelectCategory = (catName: string) => {
+    setSelectedCategory(catName)
+    searchParams.set('item', catName)
     setSearchParams(searchParams)
     setMode('browse')
     setSidebarOpen(false)
-    // Opcional: navegar explícito
-    navigate(`/catalogo?item=${cat}`, { replace: true })
+    navigate(`/catalogo?item=${catName}`, { replace: true })
   }
 
   const handleLoginClick = () => { setMode('login'); setSidebarOpen(false) }
   const handleRegisterClick = () => { setMode('register'); setSidebarOpen(false) }
   const handleAuthSuccess = () => setMode('browse')
-  const handleAddToCart = (item: ExampleItem) => setCartItems(prev => [...prev, item])
+  const handleAddToCart = (item: Product) => setCartItems(prev => [...prev, item])
   const handleRemoveFromCart = (id: string) => {
     setCartItems(prev => {
       const idx = prev.findIndex(i => i.id === id)
@@ -53,24 +61,24 @@ const ProductPage: React.FC = () => {
   }
   const handleCheckoutClick = () => setMode('checkout')
   const handlePaymentSuccess = () => { setCartItems([]); setMode('browse') }
+  const onLogoutClick = () => dispatch(logoutUser())
 
-  const itemsToShow = PRODUCTOS.filter(item => item.category === selectedCategory)
+  const itemsToShow = products.filter(
+    item => item.category.name.toLowerCase() === selectedCategory.toLowerCase()
+  )
 
   return (
     <div className="flex flex-col lg:flex-row pt-16 min-h-screen bg-neutral-50">
       {/* Mobile toggle arrow */}
       <button
-        className="fixed  top-1/2 transform -translate-y-1/2 z-50 p-2 bg-accent-coral text-black rounded-full lg:hidden"
-        onClick={() => setSidebarOpen(o => !o)}
+        className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-2 bg-primary text-white rounded-full lg:hidden"
+        onClick={() => setSidebarOpen(open => !open)}
         aria-label="Toggle sidebar"
       >
-        {sidebarOpen
-          ? <FaChevronLeft className="w-3 h-3" />
-          : <FaChevronRight className="w-3 h-3" />
-        }
+        {sidebarOpen ? <FaChevronLeft className="w-6 h-6" /> : <FaChevronRight className="w-6 h-6" />}
       </button>
 
-      {/* Sidebar: hidden on mobile unless open */}
+      {/* Sidebar */}
       <Sidebar
         className={`${sidebarOpen ? 'block' : 'hidden'} lg:block`}
         selectedId={selectedCategory}
@@ -78,21 +86,30 @@ const ProductPage: React.FC = () => {
         onLoginClick={handleLoginClick}
         onRegisterClick={handleRegisterClick}
         cartItems={cartItems}
+        onLogoutClick={onLogoutClick}
         onCheckoutClick={handleCheckoutClick}
         onRemoveFromCart={handleRemoveFromCart}
         isLoggedIn={isLoggedIn}
       />
 
       {/* Main content */}
-      <main className="flex-1 p-10 pt-16 lg:p-12">
+      <main className="flex-1 p-6 lg:p-12">
         {mode === 'login' && <LoginForm onSuccess={handleAuthSuccess} />}
         {mode === 'register' && <RegisterForm onSuccess={handleAuthSuccess} />}
         {mode === 'browse' && (
-          <ProductList
-            items={itemsToShow}
-            isLoggedIn={isLoggedIn}
-            onAddToCart={handleAddToCart}
-          />
+          <>
+            {products.length === 0 ? (
+              <p className="text-center text-gray-500 italic">Cargando productos...</p>
+            ) : itemsToShow.length === 0 ? (
+              <p className="text-center text-gray-500 italic">No hay productos disponibles en esta categoría.</p>
+            ) : (
+              <ProductList
+                items={itemsToShow}
+                isLoggedIn={isLoggedIn}
+                onAddToCart={handleAddToCart}
+              />
+            )}
+          </>
         )}
         {mode === 'checkout' && (
           <PaymentForm

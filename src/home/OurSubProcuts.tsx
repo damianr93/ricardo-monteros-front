@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination, Navigation } from 'swiper/modules'
+
+// Estilos ya declarados en main.ts como mencionaste
 
 interface Block {
     titleLines: [string, string?]
@@ -16,6 +18,12 @@ const blocks: Block[] = [
 ]
 
 const SubproductosCarousel: React.FC = () => {
+    // Registramos los módulos de Swiper
+    useEffect(() => {
+        // Registrar Swiper y sus componentes (enfoque alternativo)
+        register();
+    }, []);
+
     return (
         <section className="py-12 bg-neutral-100">
             <div className="container mx-auto px-4 text-center max-w-2xl mb-8">
@@ -52,7 +60,7 @@ const SubproductosCarousel: React.FC = () => {
                                 href={block.href}
                                 className="block w-full h-80 rounded-lg overflow-hidden shadow-lg relative group"
                                 style={{
-                                    backgroundImage: `url(${block.backgroundImage})`,
+                                    backgroundImage: `url(http://localhost:3000/api/images/products/${block.backgroundImage})`,
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
                                 }}

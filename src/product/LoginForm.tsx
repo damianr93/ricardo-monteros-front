@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { loginUser } from '../store/logged/thunks'
+import { AppDispatch } from '../store/store'
 
 interface LoginFormProps {
     onSuccess: () => void
@@ -7,11 +10,11 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const dispatch = useDispatch<AppDispatch>()
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        // Simula login
-        localStorage.setItem('authToken', 'token')
+        dispatch(loginUser({ email, password }))
         onSuccess()
     }
 
