@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { baseUrl } from '../store/API'
 import { toast } from 'react-toastify'
 
 interface RegisterFormProps {
@@ -14,7 +13,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const response = await fetch(`${baseUrl}/auth/register`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

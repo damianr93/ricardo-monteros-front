@@ -1,5 +1,4 @@
 import { Product } from '../../data/types'
-import { baseUrl } from '../API'
 import { AppThunk } from '../store'
 import {
   prodFetchStart,
@@ -13,7 +12,7 @@ import {
 export const fetchProducts = (): AppThunk => async dispatch => {
   dispatch(prodFetchStart())
   try {
-    const res = await fetch(`${baseUrl}/products`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/products`, {
       method: 'GET',
       credentials: "include"
     })
@@ -48,7 +47,7 @@ export const createProduct = (
       }
     }
 
-    const res = await fetch(`${baseUrl}/products`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/products`, {
       method: 'POST',
       credentials: "include",
       body: formData
@@ -101,7 +100,7 @@ export const updateProduct = (
         formData.append('images', file);
       });
 
-      const res = await fetch(`${baseUrl}/products/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
         method: 'PATCH',
         credentials: 'include',
         body: formData,
@@ -112,7 +111,7 @@ export const updateProduct = (
       dispatch(prodUpdateSuccess(data));
     } else {
       // PATCH sin nuevas imágenes: enviar JSON + imágenes existentes
-      const res = await fetch(`${baseUrl}/products/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -134,7 +133,7 @@ export const updateProduct = (
 
 export const deleteProduct = (id: string): AppThunk => async dispatch => {
   try {
-    const res = await fetch(`${baseUrl}/products/${id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
       method: 'DELETE',
       credentials: "include",
     })

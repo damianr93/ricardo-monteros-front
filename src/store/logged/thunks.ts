@@ -1,5 +1,4 @@
 import { AppThunk } from "../store"
-import { baseUrl } from '../API.ts'
 import { setUserDisloged, setUserLogged } from "./userLogged.ts";
 import { toast } from "react-toastify";
 import { fetchProducts } from "../products/thunks.ts";
@@ -8,7 +7,7 @@ export const loginUser = (dataToLogin: { email: string, password: string }): App
   return async (dispatch) => {
 
     try {
-      const response = await fetch(`${baseUrl}/auth/login`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -38,7 +37,7 @@ export const loginUser = (dataToLogin: { email: string, password: string }): App
 export const fetchMe = (): AppThunk => async (dispatch) => {
 
   try {
-    const res = await fetch(`${baseUrl}/auth/me`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
       method: "PUT",
       credentials: "include",
     });
@@ -55,7 +54,7 @@ export const fetchMe = (): AppThunk => async (dispatch) => {
 export const logoutUser = (): AppThunk => async (dispatch) => {
 
   try {
-    const res = await fetch(`${baseUrl}/auth/logout`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
