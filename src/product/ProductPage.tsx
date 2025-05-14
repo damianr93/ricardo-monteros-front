@@ -1,4 +1,3 @@
-// File: src/pages/ProductPage.tsx
 import React, { useState, useEffect } from 'react'
 import { FaChevronRight, FaChevronLeft } from 'react-icons/fa'
 import { useNavigate, useSearchParams } from 'react-router'
@@ -80,16 +79,16 @@ const ProductPage: React.FC = () => {
 
       {/* Sidebar */}
       <Sidebar
-        className={`${sidebarOpen ? 'block' : 'hidden'} lg:block`}
-        selectedId={selectedCategory}
-        onSelect={handleSelectCategory}
-        onLoginClick={handleLoginClick}
-        onRegisterClick={handleRegisterClick}
-        cartItems={cartItems}
-        onLogoutClick={onLogoutClick}
-        onCheckoutClick={handleCheckoutClick}
-        onRemoveFromCart={handleRemoveFromCart}
-        isLoggedIn={isLoggedIn}
+        className={`${sidebarOpen ? 'block' : 'hidden'} lg:block fixed top-16 bottom-0 left-0 w-64 overflow-y-auto z-40 bg-neutral-50 shadow-lg`}
+      selectedId={selectedCategory}
+      onSelect={handleSelectCategory}
+      onLoginClick={handleLoginClick}
+      onRegisterClick={handleRegisterClick}
+      cartItems={cartItems}
+      onLogoutClick={onLogoutClick}
+      onCheckoutClick={handleCheckoutClick}
+      onRemoveFromCart={handleRemoveFromCart}
+      isLoggedIn={isLoggedIn}
       />
 
       {/* Main content */}
