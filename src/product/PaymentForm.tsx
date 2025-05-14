@@ -20,7 +20,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ items, total, onSuccess }) =>
         setLoading(true)
 
         try {
-            const res = await fetch('http://localhost:3000/api/sendEmail', {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/sendEmail`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
