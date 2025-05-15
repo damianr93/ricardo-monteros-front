@@ -14,6 +14,7 @@ import {
   TextField,
   MenuItem,
   Button,
+  CircularProgress,
 } from "@mui/material";
 
 export interface Column {
@@ -44,9 +45,19 @@ interface CustomTableProps {
   actions?: Action[];
   onActionClick: (action: Action, row: any) => void;
   pagination?: PaginationProps;
+  isDeletingId?: string | null; // ID del elemento que está siendo borrado
+  isLoading?: boolean; // Estado general de carga
 }
 
-const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onActionClick, pagination }) => {
+const CustomTable: React.FC<CustomTableProps> = ({
+  columns,
+  data,
+  actions,
+  onActionClick,
+  pagination,
+  isDeletingId = null,
+  isLoading = false
+}) => {
   const [tableData, setTableData] = useState(data);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pagination?.rowsPerPage || 7);
@@ -108,6 +119,9 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
     return String(value);
   };
 
+  // Verifica si la tabla está en estado de carga general o hay un elemento siendo eliminado
+  const isTableProcessing = isLoading || isDeletingId !== null;
+
   return (
     <Box>
       {/* Filtros de búsqueda */}
@@ -127,6 +141,7 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
           value={searchColumn}
           onChange={(e) => setSearchColumn(e.target.value)}
           sx={{ minWidth: 200 }}
+          disabled={isTableProcessing}
         >
           {columns.map((column) => (
             <MenuItem key={column.field} value={column.field}>
@@ -139,13 +154,19 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           sx={{ flexGrow: 1 }}
+          disabled={isTableProcessing}
         />
       </Box>
 
       {/* Botón de confirmar cambios */}
       {isModified && (
         <Box sx={{ mb: 2, display: "flex", justifyContent: "flex-end", pr: 2 }}>
-          <Button variant="contained" color="primary" onClick={handleConfirmChanges}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleConfirmChanges}
+            disabled={isTableProcessing}
+          >
             Confirmar cambios
           </Button>
         </Box>
@@ -186,8 +207,17 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
                 backgroundColor: isEvenRow ? "#f5f5f5" : "#ffffff", // Alterna entre gris claro y blanco
               };
 
+              // Verifica si esta fila está siendo eliminada
+              const isDeleting = isDeletingId === row.id;
+
               return (
-                <TableRow key={rowIndex} sx={rowStyle}>
+                <TableRow
+                  key={rowIndex}
+                  sx={{
+                    ...rowStyle,
+                    opacity: isDeleting ? 0.5 : 1,
+                  }}
+                >
                   {columns.map((column) => {
                     let value;
 
@@ -213,18 +243,23 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
                     <TableCell
                       align="center"
                     >
-                      {actions.map((action, actionIndex) => (
-                        <Tooltip key={actionIndex} title={action.tooltip || ""} arrow>
-                          <IconButton
-                            color={action.color || "default"}
-                            size="small"
-                            onClick={() => onActionClick(action, row)}
-                            sx={{ m: 0.5 }}
-                          >
-                            {action.icon}
-                          </IconButton>
-                        </Tooltip>
-                      ))}
+                      {isDeleting ? (
+                        <CircularProgress size={24} color="secondary" />
+                      ) : (
+                        actions.map((action, actionIndex) => (
+                          <Tooltip key={actionIndex} title={action.tooltip || ""} arrow>
+                            <IconButton
+                              color={action.color || "default"}
+                              size="small"
+                              onClick={() => onActionClick(action, row)}
+                              disabled={isTableProcessing} // Deshabilita todos los botones cuando hay una acción en progreso
+                              sx={{ m: 0.5 }}
+                            >
+                              {action.icon}
+                            </IconButton>
+                          </Tooltip>
+                        ))
+                      )}
                     </TableCell>
                   )}
                 </TableRow>
@@ -243,6 +278,7 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, actions, onAct
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          disabled={isTableProcessing}
         />
       )}
     </Box>

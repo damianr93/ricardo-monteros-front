@@ -28,6 +28,7 @@ const ProductList: React.FC = () => {
   const [editing, setEditing] = useState<Product | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     dispatch(fetchProducts())
@@ -58,12 +59,22 @@ const ProductList: React.FC = () => {
     }
   };
 
-  const handleActionClick = (action: Action, row: any) => {
+  const handleActionClick = async (action: Action, row: any) => {
     if (action.name === "editar") {
       setEditing(row);
       setShowForm(true)
     } else if (action.name === "eliminar") {
-      dispatch(deleteProduct(row.id))
+      try {
+        // Establece el ID que está siendo eliminado
+        setDeletingId(row.id)
+        // Ejecuta la acción de eliminación
+        await dispatch(deleteProduct(row.id))
+      } catch (error) {
+        console.error('Error al eliminar el producto:', error)
+      } finally {
+        // Elimina el ID al finalizar, independientemente del resultado
+        setDeletingId(null)
+      }
     }
   };
 
@@ -74,7 +85,7 @@ const ProductList: React.FC = () => {
         <button
           onClick={handleAdd}
           className="p-2 bg-accent-coral text-white rounded flex items-center gap-2"
-          disabled={loading}
+          disabled={loading || deletingId !== null}
         >
           <FaPlus /> Añadir
         </button>
@@ -94,6 +105,8 @@ const ProductList: React.FC = () => {
           data={products}
           actions={actions}
           onActionClick={handleActionClick}
+          isDeletingId={deletingId}
+          isLoading={loading}
         />
       )}
 
