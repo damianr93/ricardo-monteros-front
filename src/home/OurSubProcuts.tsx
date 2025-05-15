@@ -31,18 +31,17 @@ const SubproductosCarousel: React.FC = () => {
         return categories
             .filter(c => c.available)
             .map(category => {
-                // Buscar un producto para esta categoría (aunque no tenga imagen)
+
                 const product = products.find(p => p.category?.id === category.id)
 
-                // Si no hay ningún producto, saltamos esta categoría
                 if (!product) return null
 
                 return {
                     titleLines: [category.name.toUpperCase()],
-                    // Usa una imagen si existe, o null si no hay
+
                     backgroundImage: product.img?.[0] ?? null,
                     href: `/catalogo?item=${encodeURIComponent(category.name)}`,
-                    // Guardamos la referencia al producto
+
                     productName: product.name
                 }
             })
@@ -125,7 +124,7 @@ const SubproductosCarousel: React.FC = () => {
                                 href={block.href}
                                 className={`block w-full h-80 rounded-lg overflow-hidden shadow-lg relative group ${!block.backgroundImage ? placeholderColors[index % placeholderColors.length] : ''}`}
                                 style={block.backgroundImage ? {
-                                    backgroundImage: `url(${import.meta.env.VITE_API_URL}/images/products/${block.backgroundImage})`,
+                                    backgroundImage: `url(${import.meta.env.VITE_BASE_AWS_URL}${block.backgroundImage})`,
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
                                 } : {}}

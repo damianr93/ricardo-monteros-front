@@ -121,7 +121,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel, 
                             {previewImages.map((src, index) => (
                                 <div key={index} className="relative w-full aspect-square border rounded overflow-hidden">
                                     <img
-                                        src={src.startsWith('blob:') ? src : `http://localhost:3000/api/images/products/${src}`}
+                                        src={src.startsWith('blob:') ? src : `${import.meta.env.VITE_BASE_AWS_URL}${src}`}
                                         alt={`Preview ${index}`}
                                         className="w-full h-full object-cover"
                                     />

@@ -31,7 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
                 {/* Imagen principal con navegación */}
                 <div className="relative w-full h-48 overflow-hidden">
                     <img
-                        src={`http://localhost:3000/api/images/products/${images[currentImage]}`}
+                        src={`${import.meta.env.VITE_BASE_AWS_URL}${images[currentImage]}`}
                         alt={item.title}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-95"
                     />
@@ -90,7 +90,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
                             ◀
                         </button>
                         <img
-                            src={`http://localhost:3000/api/images/products/${images[currentImage]}`}
+                            src={`${import.meta.env.VITE_BASE_AWS_URL}${images[currentImage]}`}
                             alt={`${item.title} ${currentImage + 1}`}
                             className="max-h-[80vh] max-w-full object-contain rounded"
                         />
