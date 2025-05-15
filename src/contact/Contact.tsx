@@ -1,6 +1,6 @@
-// File: src/pages/Contacto.tsx
 import React, { useState } from 'react'
 import { FaPhoneAlt, FaWhatsapp, FaMapMarkerAlt, FaEnvelope } from 'react-icons/fa'
+import Loading from '../components/loading'
 
 const Contacto: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -9,9 +9,15 @@ const Contacto: React.FC = () => {
     localidad: '',
     phone: '',
     empresa: '',
-    actividad: '',
     message: '',
   })
+
+  // Estados para manejar la carga y respuesta del formulario
+  const [isLoading, setIsLoading] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({ type: null, message: '' })
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -20,10 +26,61 @@ const Contacto: React.FC = () => {
     setFormData({ ...formData, [name]: value })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Enviar form:', formData)
-    // TODO: enviar al servidor...
+
+    setSubmitStatus({ type: null, message: '' })
+    setIsLoading(true)
+
+    try {
+      // Adaptamos los nombres de los campos para que coincidan con el backend
+      const backendFormData = {
+        name: formData.name,
+        correo: formData.email,
+        localidad: formData.localidad,
+        telefono: formData.phone,
+        empresa: formData.empresa || undefined,
+        mensaje: formData.message || undefined,
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/sendEmail/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(backendFormData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Hubo un error al enviar el mensaje')
+      }
+
+      // Éxito
+      setSubmitStatus({
+        type: 'success',
+        message: '¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.'
+      })
+
+      // Limpiar el formulario
+      setFormData({
+        name: '',
+        email: '',
+        localidad: '',
+        phone: '',
+        empresa: '',
+        message: '',
+      })
+
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Error desconocido al enviar el mensaje'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -93,6 +150,19 @@ const Contacto: React.FC = () => {
         {/* Contact Form */}
         <div className="bg-white p-8 rounded-lg shadow-lg">
           <h2 className="text-2xl font-heading mb-6 text-brand-green">Envíanos un mensaje</h2>
+
+          {/* Mensajes de estado */}
+          {submitStatus.type && (
+            <div
+              className={`p-4 mb-6 rounded-lg ${submitStatus.type === 'success'
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+                }`}
+            >
+              {submitStatus.message}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <input
@@ -103,6 +173,7 @@ const Contacto: React.FC = () => {
                 placeholder="Nombre *"
                 required
                 className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                disabled={isLoading}
               />
               <input
                 type="email"
@@ -112,6 +183,7 @@ const Contacto: React.FC = () => {
                 placeholder="E-mail *"
                 required
                 className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                disabled={isLoading}
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -122,6 +194,7 @@ const Contacto: React.FC = () => {
                 onChange={handleChange}
                 placeholder="Localidad"
                 className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                disabled={isLoading}
               />
               <input
                 type="text"
@@ -131,6 +204,7 @@ const Contacto: React.FC = () => {
                 placeholder="Teléfono *"
                 required
                 className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -141,16 +215,7 @@ const Contacto: React.FC = () => {
                 onChange={handleChange}
                 placeholder="Empresa"
                 className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green"
-              />
-            </div>
-            <div>
-              <input
-                type="text"
-                name="actividad"
-                value={formData.actividad}
-                onChange={handleChange}
-                placeholder="Actividad"
-                className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -162,14 +227,21 @@ const Contacto: React.FC = () => {
                 value={formData.message}
                 onChange={handleChange}
                 className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                disabled={isLoading}
               />
             </div>
             <div className="text-right">
               <button
                 type="submit"
-                className="px-8 py-3 bg-accent-coral hover:bg-accent-coral-light text-white font-medium rounded-full shadow"
+                disabled={isLoading}
+                className={`px-8 py-3 bg-accent-coral hover:bg-accent-coral-light text-white font-medium rounded-full shadow flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
               >
-                Enviar Mensaje
+                {isLoading ? (
+                  <Loading/>
+                ) : (
+                  'Enviar Mensaje'
+                )}
               </button>
             </div>
           </form>
