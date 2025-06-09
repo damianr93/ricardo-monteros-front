@@ -2,12 +2,14 @@ import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit'
 import { userLogged } from './logged/userLogged';
 import { categoriesSlice } from './categories/slice';
 import { productsSlice } from './products/slice';
+import imagesSlice from './imgAws/imgAws';
 
 export const store = configureStore({
   reducer: {
     isLoggedUser: userLogged.reducer,
     categories: categoriesSlice.reducer,
     products: productsSlice.reducer,
+    images: imagesSlice.reducer
   },
 })
 

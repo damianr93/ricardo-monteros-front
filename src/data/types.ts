@@ -8,6 +8,14 @@ export interface ItemDetail {
   }>
 }
 
+export interface Image {
+  key: string
+  url: string
+  type: string
+  size: number
+  lastModified: string
+}
+
 export interface Category {
   id: string;
   name: string;

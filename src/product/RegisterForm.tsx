@@ -9,9 +9,36 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(email)) {
+            toast.error('Por favor ingrese un email válido', {
+                position: 'top-left'
+            })
+            return
+        }
+
+        // Validar longitud de contraseña
+        if (password.length < 6) {
+            toast.error('La contraseña debe tener al menos 6 caracteres', {
+                position: 'top-left'
+            })
+            return
+        }
+
+        // Validar que las contraseñas coincidan
+        if (password !== confirmPassword) {
+            toast.error('Las contraseñas no coinciden', {
+                position: 'top-left'
+            })
+            return
+        }
+
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
                 method: 'POST',
@@ -63,7 +90,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 />
             </div>
-            <div className="mb-6">
+            <div className="mb-4">
                 <label className="block mb-2">Contraseña</label>
                 <input
                     type="password"
@@ -71,6 +98,21 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
                     onChange={e => setPassword(e.target.value)}
                     required
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                />
+            </div>
+            <div className="mb-6">
+                <label className="block mb-2">Confirmar Contraseña</label>
+                <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    required
+                    className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 transition-colors ${confirmPassword === ''
+                            ? 'border-gray-300 focus:ring-brand-green'
+                            : password === confirmPassword
+                                ? 'border-green-400 bg-green-50 focus:ring-green-400'
+                                : 'border-red-400 bg-red-50 focus:ring-red-400'
+                        }`}
                 />
             </div>
             <button
