@@ -19,8 +19,6 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
     const { list, loading, error } = useSelector((state: RootState) => state.images);
     const dispatch = useDispatch<AppDispatch>();
 
-    console.log(list)
-
     useEffect(() => {
 
         if (list.length === 0) {
