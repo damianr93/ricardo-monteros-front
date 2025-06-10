@@ -1,10 +1,13 @@
 import { AppThunk } from "../store";
 import { setImages } from "./imgAws";
 
-
-export const fetchAllImages = (): AppThunk => async (dispatch) => {
+export const fetchImagesPaginated = (token?: string, limit: number = 50): AppThunk => async (dispatch) => {
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/images/allimages`, {
+        const url = new URL(`${import.meta.env.VITE_API_URL}/images/allimageswithpagination`);
+        url.searchParams.set('limit', limit.toString());
+        if (token) url.searchParams.set('token', token);
+
+        const response = await fetch(url.toString(), {
             method: 'GET',
             credentials: "include",
             headers: {
@@ -12,19 +15,12 @@ export const fetchAllImages = (): AppThunk => async (dispatch) => {
             },
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const { data } = await response.json();
 
-        if (!Array.isArray(data.images)) {
-            throw new Error('Expected an array of images but got different data structure');
-        }
-
         dispatch(setImages(data));
-
     } catch (err: unknown) {
-        console.error('Error fetching images:', err);
+        console.error('Error fetching paginated images:', err);
     }
 };

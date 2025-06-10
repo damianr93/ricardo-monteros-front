@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Image } from '../../../data/types';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllImages } from '../../../store/imgAws/thunks';
 import { AppDispatch, RootState } from '../../../store/store';
+import { fetchImagesPaginated } from '../../../store/imgAws/thunks';
 
 interface SelectExistingImagesModalProps {
     onClose: () => void;
@@ -15,17 +15,25 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
     onSelect,
     initialSelected = []
 }) => {
+    const dispatch = useDispatch<AppDispatch>();
     const [selectedImages, setSelectedImages] = useState<string[]>(initialSelected);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
-    const { list, loading, error } = useSelector((state: RootState) => state.images);
-    const dispatch = useDispatch<AppDispatch>();
+    const { list, loading, error, nextToken, hasMore } = useSelector((state: RootState) => state.images);
+
+    const loadNextPage = () => {
+        if (hasMore && !loading) {
+            dispatch(fetchImagesPaginated(nextToken ?? undefined));
+        }
+    };
+
+
 
     const ITEMS_PER_PAGE = 12; // 3x4 grid
 
     useEffect(() => {
         if (list.length === 0) {
-            dispatch(fetchAllImages());
+            dispatch(fetchImagesPaginated());
         }
     }, []);
 
@@ -157,7 +165,7 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
                         <p className="text-red-500 mb-4">Error al cargar imágenes: {error}</p>
                         <div className="flex justify-center space-x-2">
                             <button
-                                onClick={() => dispatch(fetchAllImages())}
+                                onClick={() => dispatch(fetchImagesPaginated())}
                                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                             >
                                 Reintentar
@@ -232,7 +240,7 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
                             </p>
                             {!searchTerm && (
                                 <button
-                                    onClick={() => dispatch(fetchAllImages())}
+                                    onClick={() => dispatch(fetchImagesPaginated())}
                                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                                 >
                                     Recargar
@@ -279,6 +287,18 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
                         </div>
                     )}
                 </div>
+
+                {hasMore && (
+                    <div className="mt-4 flex justify-center">
+                        <button
+                            onClick={loadNextPage}
+                            disabled={loading}
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                        >
+                            {loading ? 'Cargando...' : 'Cargar más'}
+                        </button>
+                    </div>
+                )}
 
                 {/* Paginación */}
                 {totalPages > 1 && (
