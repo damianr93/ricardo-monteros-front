@@ -18,7 +18,7 @@ const InitialMessage: React.FC = () => {
                     Nuestro compromiso es ayudarte a crear espacios acogedores y llenos de personalidad, con soluciones de decoración a medida.
                 </p>
                 <a
-                    href="/productos"
+                    href="/catalogo"
                     className="inline-block bg-accent-coral text-white font-medium text-base px-6 py-3 rounded-lg hover:bg-accent-coral-light transition"
                 >
                     Explorar productos

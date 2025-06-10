@@ -62,8 +62,9 @@ const ProductPage: React.FC = () => {
   const handlePaymentSuccess = () => { setCartItems([]); setMode('browse') }
   const onLogoutClick = () => dispatch(logoutUser())
 
+  // Fix: Agregar verificación de null/undefined para category
   const itemsToShow = products.filter(
-    item => item.category.name.toLowerCase() === selectedCategory.toLowerCase()
+    item => item.category && item.category.name && item.category.name.toLowerCase() === selectedCategory.toLowerCase()
   )
 
   return (
@@ -80,15 +81,15 @@ const ProductPage: React.FC = () => {
       {/* Sidebar */}
       <Sidebar
         className={`${sidebarOpen ? 'block' : 'hidden'} lg:block fixed top-16 bottom-0 left-0 w-64 overflow-y-auto z-40 bg-neutral-50 shadow-lg`}
-      selectedId={selectedCategory}
-      onSelect={handleSelectCategory}
-      onLoginClick={handleLoginClick}
-      onRegisterClick={handleRegisterClick}
-      cartItems={cartItems}
-      onLogoutClick={onLogoutClick}
-      onCheckoutClick={handleCheckoutClick}
-      onRemoveFromCart={handleRemoveFromCart}
-      isLoggedIn={isLoggedIn}
+        selectedId={selectedCategory}
+        onSelect={handleSelectCategory}
+        onLoginClick={handleLoginClick}
+        onRegisterClick={handleRegisterClick}
+        cartItems={cartItems}
+        onLogoutClick={onLogoutClick}
+        onCheckoutClick={handleCheckoutClick}
+        onRemoveFromCart={handleRemoveFromCart}
+        isLoggedIn={isLoggedIn}
       />
 
       {/* Main content */}

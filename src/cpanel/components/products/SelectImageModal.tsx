@@ -70,23 +70,23 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
         setCurrentPage(page);
     };
 
-    const selectAllCurrentPage = () => {
-        const currentPageUrls = currentImages.map(img => img.url);
-        const newSelected = [...selectedImages];
+    // const selectAllCurrentPage = () => {
+    //     const currentPageUrls = currentImages.map(img => img.url);
+    //     const newSelected = [...selectedImages];
 
-        currentPageUrls.forEach(url => {
-            if (!newSelected.includes(url)) {
-                newSelected.push(url);
-            }
-        });
+    //     currentPageUrls.forEach(url => {
+    //         if (!newSelected.includes(url)) {
+    //             newSelected.push(url);
+    //         }
+    //     });
 
-        setSelectedImages(newSelected);
-    };
+    //     setSelectedImages(newSelected);
+    // };
 
-    const deselectAllCurrentPage = () => {
-        const currentPageUrls = currentImages.map(img => img.url);
-        setSelectedImages(prev => prev.filter(url => !currentPageUrls.includes(url)));
-    };
+    // const deselectAllCurrentPage = () => {
+    //     const currentPageUrls = currentImages.map(img => img.url);
+    //     setSelectedImages(prev => prev.filter(url => !currentPageUrls.includes(url)));
+    // };
 
     const renderPaginationButtons = () => {
         const buttons = [];
@@ -184,8 +184,8 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-6xl w-full max-h-[90vh] flex flex-col">
+        <div className="fixed mt-20 pt-10 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-6xl w-full max-h-[90vh] flex flex-col">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">Seleccionar imágenes existentes</h3>
@@ -211,7 +211,7 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
                 {/* Controles de selección */}
                 {currentImages.length > 0 && (
                     <div className="flex justify-between items-center mb-4 text-sm">
-                        <div className="flex space-x-2">
+                        {/* <div className="flex space-x-2">
                             <button
                                 onClick={selectAllCurrentPage}
                                 className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded"
@@ -224,7 +224,7 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
                             >
                                 Deseleccionar página
                             </button>
-                        </div>
+                        </div> */}
                         <span className="text-gray-500">
                             Página {currentPage} de {totalPages} | {filteredImages.length} imágenes
                         </span>
