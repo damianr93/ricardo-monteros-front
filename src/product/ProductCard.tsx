@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Product } from '../data/types'
 
+const DEFAULT_IMG = '/img/logo_sin_fondo.png'
+
 interface ProductCardProps {
     item: Product
     isLoggedIn: boolean
@@ -22,6 +24,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
         setCurrentImage((prev) => (prev - 1 + images.length) % images.length)
     }
 
+    const handleImgError: React.DOMAttributes<HTMLImageElement>['onError'] = (e) => {
+        e.currentTarget.onerror = null // evitar loop si DEFAULT_IMG falla
+        e.currentTarget.src = DEFAULT_IMG
+    }
+
     return (
         <>
             <div
@@ -33,6 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
                     <img
                         src={`${import.meta.env.VITE_BASE_AWS_URL}${images[currentImage]}`}
                         alt={item.title}
+                        onError={handleImgError}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-95"
                     />
                     {images.length > 1 && (
@@ -92,6 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
                         <img
                             src={`${import.meta.env.VITE_BASE_AWS_URL}${images[currentImage]}`}
                             alt={`${item.title} ${currentImage + 1}`}
+                            onError={handleImgError}
                             className="max-h-[80vh] max-w-full object-contain rounded"
                         />
                         <button
