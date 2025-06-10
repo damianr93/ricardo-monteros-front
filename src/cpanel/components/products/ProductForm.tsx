@@ -1,322 +1,245 @@
-import React, { useEffect, useState } from 'react';
-import { Image } from '../../../data/types';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllImages } from '../../../store/imgAws/thunks';
-import { AppDispatch, RootState } from '../../../store/store';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store/store';
+import { Product } from '../../../data/types';
+import Loading from '../../../components/loading';
+import SelectExistingImagesModal from './SelectImageModal';
 
-interface SelectExistingImagesModalProps {
-    onClose: () => void;
-    onSelect: (selectedImages: string[]) => void;
-    initialSelected?: string[];
+interface ProductFormProps {
+    initial?: Product;
+    onSubmit: (data: Omit<Product, 'id' | 'user'>, imageFiles?: File[]) => void;
+    onCancel: () => void;
+    isSubmitting?: boolean; // Nueva prop para indicar si está enviando el formulario
 }
 
-const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
-    onClose,
-    onSelect,
-    initialSelected = []
-}) => {
-    const [selectedImages, setSelectedImages] = useState<string[]>(initialSelected);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchTerm, setSearchTerm] = useState('');
-    const { list, loading, error } = useSelector((state: RootState) => state.images);
-    const dispatch = useDispatch<AppDispatch>();
+const ProductForm: React.FC<ProductFormProps> = ({ initial, onSubmit, onCancel, isSubmitting = false }) => {
+    const categories = useSelector((state: RootState) => state.categories.list);
+    const categoriesLoading = useSelector((state: RootState) => state.categories.loading);
 
-    const ITEMS_PER_PAGE = 12; // 3x4 grid
+    const [name, setName] = useState(initial?.name || '');
+    const [price, setPrice] = useState(initial?.price?.toString() || '0');
+    const [available, setAvailable] = useState(initial?.available || false);
+    const [categoryId, setCategoryId] = useState(initial?.category?.id || '');
+    const [title, setTitle] = useState(initial?.title || '');
+    const [description, setDescription] = useState(initial?.description || '');
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [existingImages, setExistingImages] = useState<string[]>([]);
+    const [previewImages, setPreviewImages] = useState<string[]>([]);
+    const [showExistingImagesModal, setShowExistingImagesModal] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (list.length === 0) {
-            dispatch(fetchAllImages());
+        if (initial) {
+            setName(initial.name);
+            setPrice(initial.price.toString());
+            setAvailable(initial.available);
+            setCategoryId(initial.category?.id || '');
+            setTitle(initial.title || '');
+            setDescription(initial.description || '');
+            setExistingImages(initial.img ?? []);
+            setPreviewImages(initial.img ?? []);
+            setImageFiles([]);
         }
-    }, []);
+    }, [initial]);
 
-    // Filtrar imágenes por término de búsqueda
-    const filteredImages = list.filter((image: Image) =>
-        image.key.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Función helper para determinar la URL correcta de la imagen
+    const getImageSrc = (src: string): string => {
+        // Si es un blob (archivo local), devolver tal como está
+        if (src.startsWith('blob:')) {
+            return src;
+        }
 
-    // Calcular paginación
-    const totalPages = Math.ceil(filteredImages.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const currentImages = filteredImages.slice(startIndex, endIndex);
+        // Si ya es una URL completa (viene del modal), devolver tal como está
+        if (src.startsWith('http://') || src.startsWith('https://')) {
+            return src;
+        }
 
-    // Resetear página cuando cambia el filtro
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm]);
-
-    const toggleImageSelection = (imageUrl: string) => {
-        setSelectedImages(prev =>
-            prev.includes(imageUrl)
-                ? prev.filter(url => url !== imageUrl)
-                : [...prev, imageUrl]
-        );
+        // Si es una ruta relativa, agregar la URL base
+        return `${import.meta.env.VITE_BASE_AWS_URL}${src}`;
     };
 
-    const handleSubmit = () => {
-        onSelect(selectedImages);
-        onClose();
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newFiles = Array.from(e.target.files || []);
+        const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+
+        setImageFiles(prev => [...prev, ...newFiles]);
+        setPreviewImages(prev => [...prev, ...newPreviews]);
     };
 
-    const goToPage = (page: number) => {
-        setCurrentPage(page);
-    };
+    const handleRemoveImage = (index: number) => {
+        const isBlob = previewImages[index].startsWith('blob:');
 
-    const selectAllCurrentPage = () => {
-        const currentPageUrls = currentImages.map(img => img.url);
-        const newSelected = [...selectedImages];
-
-        currentPageUrls.forEach(url => {
-            if (!newSelected.includes(url)) {
-                newSelected.push(url);
+        if (isBlob) {
+            const blobIndexes = previewImages.map((src, i) => src.startsWith('blob:') ? i : -1).filter(i => i !== -1);
+            const fileIndex = blobIndexes.indexOf(index);
+            if (fileIndex !== -1) {
+                setImageFiles(prev => prev.filter((_, i) => i !== fileIndex));
             }
-        });
+        } else {
+            const nonBlobIndexes = previewImages.map((src, i) => !src.startsWith('blob:') ? i : -1).filter(i => i !== -1);
+            const existingIndex = nonBlobIndexes.indexOf(index);
+            if (existingIndex !== -1) {
+                setExistingImages(prev => prev.filter((_, i) => i !== existingIndex));
+            }
+        }
 
-        setSelectedImages(newSelected);
+        setPreviewImages(prev => prev.filter((_, i) => i !== index));
     };
 
-    const deselectAllCurrentPage = () => {
-        const currentPageUrls = currentImages.map(img => img.url);
-        setSelectedImages(prev => prev.filter(url => !currentPageUrls.includes(url)));
-    };
-
-    const renderPaginationButtons = () => {
-        const buttons = [];
-        const maxVisiblePages = 5;
-
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(1, endPage - maxVisiblePages + 1);
-        }
-
-        // Botón "Anterior"
-        if (currentPage > 1) {
-            buttons.push(
-                <button
-                    key="prev"
-                    onClick={() => goToPage(currentPage - 1)}
-                    className="px-3 py-1 border rounded hover:bg-gray-50"
-                >
-                    ←
-                </button>
-            );
-        }
-
-        // Botones de páginas
-        for (let i = startPage; i <= endPage; i++) {
-            buttons.push(
-                <button
-                    key={i}
-                    onClick={() => goToPage(i)}
-                    className={`px-3 py-1 border rounded ${i === currentPage
-                            ? 'bg-blue-500 text-white'
-                            : 'hover:bg-gray-50'
-                        }`}
-                >
-                    {i}
-                </button>
-            );
-        }
-
-        // Botón "Siguiente"
-        if (currentPage < totalPages) {
-            buttons.push(
-                <button
-                    key="next"
-                    onClick={() => goToPage(currentPage + 1)}
-                    className="px-3 py-1 border rounded hover:bg-gray-50"
-                >
-                    →
-                </button>
-            );
-        }
-
-        return buttons;
-    };
-
-    if (loading) {
-        return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                    <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                        <p>Cargando imágenes...</p>
-                    </div>
-                </div>
-            </div>
+    const handleSelectExistingImages = (selectedImages: string[]) => {
+        const newImages = selectedImages.filter(img =>
+            !existingImages.includes(img) && !previewImages.includes(img)
         );
-    }
 
-    if (error) {
-        return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                    <div className="text-center py-8">
-                        <p className="text-red-500 mb-4">Error al cargar imágenes: {error}</p>
-                        <div className="flex justify-center space-x-2">
-                            <button
-                                onClick={() => dispatch(fetchAllImages())}
-                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                                Reintentar
-                            </button>
-                            <button
-                                onClick={onClose}
-                                className="px-4 py-2 border rounded"
-                            >
-                                Cerrar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+        setExistingImages(prev => [...prev, ...newImages]);
+        setPreviewImages(prev => [...prev, ...newImages]);
+    };
+
+    // Función para normalizar URLs (convertir URLs completas a rutas relativas)
+    const normalizeImageUrl = (url: string): string => {
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            // Extraer solo la parte de la ruta después del dominio
+            const baseUrl = import.meta.env.VITE_BASE_AWS_URL;
+            if (url.startsWith(baseUrl)) {
+                return url.replace(baseUrl, '');
+            }
+            // Si no coincide con nuestra URL base, intentar extraer la ruta
+            const urlParts = url.split('/');
+            const uploadsIndex = urlParts.findIndex(part => part === 'uploads');
+            if (uploadsIndex !== -1) {
+                return urlParts.slice(uploadsIndex).join('/');
+            }
+        }
+        return url; // Si ya es una ruta relativa, devolverla tal como está
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const selectedCategory = categories.find(c => c.id === categoryId);
+        if (!selectedCategory) {
+            alert('Por favor selecciona una categoría válida');
+            return;
+        }
+
+        // Normalizar las URLs de las imágenes existentes antes de enviar
+        const normalizedImages = existingImages.map(normalizeImageUrl);
+
+        onSubmit({
+            name,
+            price: parseFloat(price),
+            available,
+            category: selectedCategory,
+            title,
+            description,
+            img: normalizedImages
+        }, imageFiles);
+    };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-6xl w-full max-h-[90vh] flex flex-col">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">Seleccionar imágenes existentes</h3>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 text-xl font-bold w-8 h-8 flex items-center justify-center"
-                    >
-                        ✕
-                    </button>
-                </div>
-
-                {/* Búsqueda */}
-                <div className="mb-4">
-                    <input
-                        type="text"
-                        placeholder="Buscar imágenes..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                {/* Controles de selección */}
-                {currentImages.length > 0 && (
-                    <div className="flex justify-between items-center mb-4 text-sm">
-                        <div className="flex space-x-2">
-                            <button
-                                onClick={selectAllCurrentPage}
-                                className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded"
-                            >
-                                Seleccionar página
-                            </button>
-                            <button
-                                onClick={deselectAllCurrentPage}
-                                className="px-3 py-1 text-red-600 hover:bg-red-50 rounded"
-                            >
-                                Deseleccionar página
-                            </button>
-                        </div>
-                        <span className="text-gray-500">
-                            Página {currentPage} de {totalPages} | {filteredImages.length} imágenes
-                        </span>
+        <div className="fixed top-[80px] left-0 right-0 bottom-0 bg-black bg-opacity-50 flex items-start justify-center z-[40] overflow-y-auto pt-10">
+            <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow max-w-lg w-full space-y-4 relative">
+                {/* Overlay de carga cuando está enviando o cargando categorías */}
+                {(isSubmitting || categoriesLoading) && (
+                    <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-10">
+                        <Loading />
                     </div>
                 )}
 
-                {/* Grid de imágenes */}
-                <div className="flex-1 overflow-y-auto">
-                    {filteredImages.length === 0 ? (
-                        <div className="text-center py-8">
-                            <p className="text-gray-500 mb-4">
-                                {searchTerm ? 'No se encontraron imágenes' : 'No hay imágenes disponibles'}
-                            </p>
-                            {!searchTerm && (
-                                <button
-                                    onClick={() => dispatch(fetchAllImages())}
-                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                >
-                                    Recargar
-                                </button>
-                            )}
+                <h3 className="text-lg font-heading mb-2">{initial ? 'Editar Producto' : 'Nuevo Producto'}</h3>
+                <div className="grid grid-cols-1 gap-4">
+                    <input type="text" placeholder="Nombre" value={name} onChange={e => setName(e.target.value)} required className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green" />
+                    <input type="number" placeholder="Precio" value={price} onChange={e => setPrice(e.target.value)} required className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green" />
+                    <select value={categoryId} onChange={e => setCategoryId(e.target.value)} required className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green">
+                        <option value="" disabled>Selecciona categoría</option>
+                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                    <input type="text" placeholder="Título (opcional)" value={title} onChange={e => setTitle(e.target.value)} className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green" />
+                    <textarea placeholder="Descripción (opcional)" value={description} onChange={e => setDescription(e.target.value)} className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-brand-green" />
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">Imágenes del producto</label>
+                        <div className="flex items-center space-x-4">
+                            <button
+                                type="button"
+                                onClick={() => setShowExistingImagesModal(true)}
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
+                            >
+                                Seleccionar existentes
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
+                            >
+                                Seleccionar archivo
+                            </button>
+                            <span className="text-sm text-gray-500">
+                                {imageFiles.length > 0 ? imageFiles.map(f => f.name).join(', ') : 'Ningún archivo seleccionado'}
+                            </span>
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {currentImages.map((image: Image) => (
-                                <div
-                                    key={image.key}
-                                    className={`relative border-2 rounded-md overflow-hidden cursor-pointer transition-all hover:shadow-lg
-                                        ${selectedImages.includes(image.url)
-                                            ? 'border-blue-500 ring-2 ring-blue-200'
-                                            : 'border-gray-200 hover:border-gray-300'
-                                        }`}
-                                    onClick={() => toggleImageSelection(image.url)}
-                                >
+                        <input ref={fileInputRef} type="file" accept="image/*" multiple name="images" onChange={handleImageChange} className="hidden" />
+
+                        <div className="grid grid-cols-3 gap-2">
+                            {previewImages.map((src, index) => (
+                                <div key={index} className="relative w-full aspect-square border rounded overflow-hidden">
                                     <img
-                                        src={image.url}
-                                        alt={`Imagen ${image.key}`}
-                                        className="w-full h-32 object-cover"
+                                        src={getImageSrc(src)}
+                                        alt={`Preview ${index}`}
+                                        className="w-full h-full object-cover"
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDIwMCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMjgiIGZpbGw9IiNGM0Y0RjYiLz48cGF0aCBkPSJNNjggNzJIMTMyVjg0SDY4VjcyWiIgZmlsbD0iIzlDQTNBRiIvPjwvc3ZnPg==';
                                         }}
                                     />
-
-                                    {selectedImages.includes(image.url) && (
-                                        <div className="absolute inset-0 bg-blue-500 bg-opacity-30 flex items-center justify-center">
-                                            <div className="bg-blue-500 rounded-full w-8 h-8 flex items-center justify-center">
-                                                <span className="text-white text-lg font-bold">✓</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Información adicional en hover */}
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-2 opacity-0 hover:opacity-100 transition-opacity">
-                                        <p className="truncate">{image.key.split('/').pop()}</p>
-                                        <p>{(image.size / 1024).toFixed(1)} KB</p>
+                                    <div className="absolute top-0 left-0 right-0 bg-red-600 bg-opacity-80 text-white flex justify-center items-center h-8">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveImage(index)}
+                                            className="text-white hover:scale-110 transition-transform"
+                                            aria-label="Eliminar imagen"
+                                        >
+                                            🗑️
+                                        </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    )}
-                </div>
 
-                {/* Paginación */}
-                {totalPages > 1 && (
-                    <div className="flex justify-center items-center mt-4 space-x-1">
-                        {renderPaginationButtons()}
-                    </div>
-                )}
-
-                {/* Footer */}
-                <div className="flex justify-between items-center mt-6 pt-4 border-t">
-                    <p className="text-sm text-gray-500">
-                        {selectedImages.length} seleccionadas de {filteredImages.length} imágenes
-                    </p>
-                    <div className="flex space-x-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={selectedImages.length === 0}
-                            className={`px-4 py-2 rounded font-medium transition-colors
-                                ${selectedImages.length > 0
-                                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                }`}
-                        >
-                            Seleccionar ({selectedImages.length})
-                        </button>
+                        <div className="flex items-center">
+                            <input id="prod-available" type="checkbox" checked={available} onChange={e => setAvailable(e.target.checked)} className="mr-2" />
+                            <label htmlFor="prod-available">Disponible</label>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div className="flex justify-end space-x-2">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="px-4 py-2 rounded border"
+                        disabled={isSubmitting}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        className="px-4 py-2 bg-accent-coral text-white rounded hover:bg-accent-coral-light transition"
+                        disabled={isSubmitting || categoriesLoading}
+                    >
+                        {isSubmitting ? 'Procesando...' : initial ? 'Actualizar' : 'Crear'}
+                    </button>
+                </div>
+            </form>
+
+            {showExistingImagesModal && (
+                <SelectExistingImagesModal
+                    onClose={() => setShowExistingImagesModal(false)}
+                    onSelect={handleSelectExistingImages}
+                    initialSelected={existingImages}
+                />
+            )}
         </div>
     );
 };
 
-export default SelectExistingImagesModal;
+export default ProductForm;

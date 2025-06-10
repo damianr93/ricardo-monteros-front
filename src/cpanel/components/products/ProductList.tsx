@@ -59,7 +59,7 @@ const ProductList: React.FC = () => {
     }
   };
 
-  const handleActionClick = async (action: Action, row: any) => {
+  const handleActionClick = async (action: Action, row: Product) => {
     if (action.name === "editar") {
       setEditing(row);
       setShowForm(true)
@@ -113,7 +113,7 @@ const ProductList: React.FC = () => {
       {showForm && (
         <ProductForm
           initial={editing || undefined}
-          onSubmit={(data, images) => handleSubmit(data, images)}
+          onSubmit={handleSubmit}
           onCancel={() => setShowForm(false)}
           isSubmitting={isSubmitting}
         />
