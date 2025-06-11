@@ -5,7 +5,8 @@ import {
   FaMapMarkerAlt,
   FaEnvelope,
   FaInstagram,
-  FaFacebookF
+  FaFacebookF,
+  FaWhatsapp
 } from 'react-icons/fa'
 
 const Footer: React.FC = () => (
@@ -20,18 +21,22 @@ const Footer: React.FC = () => (
         <ul className="space-y-4 text-neutral-100">
           <li className="flex items-center">
             <FaPhoneAlt className="h-6 w-6 mr-3" />
-            <span>+54 353 0303-456</span>
+            <span>(+54 9 353) 4287484</span>
+          </li>
+          <li className="flex items-center">
+            <FaWhatsapp className="h-6 w-6 mr-3" />
+            <span>(+54 9 353) 4287484</span>
           </li>
           <li className="flex items-start">
             <FaMapMarkerAlt className="h-6 w-6 mr-3 mt-1" />
             <div>
-              <p>Av. falsa 123, Villa Maria</p>
+              <p>Villa Maria</p>
               <p>Córdoba, Argentina</p>
             </div>
           </li>
           <li className="flex items-center">
             <FaEnvelope className="h-6 w-6 mr-3" />
-            <span>contacto@ricardomontero.com</span>
+            <span>ricardomontero.floresart@gmail.com</span>
           </li>
         </ul>
       </div>
@@ -53,7 +58,7 @@ const Footer: React.FC = () => (
             </a>
           </li>
           <li>
-            <a href="/productos" className="hover:text-accent-coral-light transition">
+            <a href="/catalogo" className="hover:text-accent-coral-light transition">
               Productos
             </a>
           </li>

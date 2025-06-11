@@ -103,7 +103,7 @@ const Navbar: React.FC = () => {
             <a href="#" className="text-neutral-800 hover:text-accent-coral transition">
               <FaFacebookF className="w-5 h-5" />
             </a>
-            <a href="#" className="text-neutral-800 hover:text-accent-coral transition">
+            <a href="https://web.whatsapp.com/send?phone=5493534287484&text=Hola" className="text-neutral-800 hover:text-accent-coral transition">
               <FaWhatsapp className="w-5 h-5" />
             </a>
 

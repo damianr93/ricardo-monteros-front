@@ -107,7 +107,7 @@ const Contacto: React.FC = () => {
               <FaPhoneAlt className="text-brand-green mt-1 mr-4" />
               <div>
                 <h3 className="font-semibold">Teléfono</h3>
-                <p>(+54 353) 0303-456 / 0303-456</p>
+                <p>(+54 9 353) 4287484</p>
               </div>
             </li>
             <li className="flex items-start">
@@ -115,12 +115,12 @@ const Contacto: React.FC = () => {
               <div>
                 <h3 className="font-semibold">WhatsApp</h3>
                 <a
-                  href="https://wa.me/5493534210083"
+                  href="https://web.whatsapp.com/send?phone=5493534287484&text=Hola"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-brand-green hover:underline"
                 >
-                  (+54 9 353) 4210-083
+                  (+54 9 353) 4287484
                 </a>
               </div>
             </li>
@@ -128,7 +128,6 @@ const Contacto: React.FC = () => {
               <FaMapMarkerAlt className="text-brand-green mt-1 mr-4" />
               <div>
                 <h3 className="font-semibold">Ubicación</h3>
-                <p>Av. falsa 123</p>
                 <p>Villa Maria, Córdoba, Argentina</p>
               </div>
             </li>
@@ -137,10 +136,10 @@ const Contacto: React.FC = () => {
               <div>
                 <h3 className="font-semibold">Email</h3>
                 <a
-                  href="mailto:contacto@ricardomontero.com"
+                  href="mailto:ricardomontero.floresart@gmail.com"
                   className="text-brand-green hover:underline"
                 >
-                  contacto@ricardomontero.com
+                  ricardomontero.floresart@gmail.com
                 </a>
               </div>
             </li>
