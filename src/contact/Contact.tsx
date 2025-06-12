@@ -73,14 +73,24 @@ const Contacto: React.FC = () => {
               <FaPhoneAlt className="text-primary mt-1 mr-4" />
               <div>
                 <h3 className="font-semibold">Teléfono</h3>
-                <p>(+54 9 353) 4287484</p>
+                <a
+                  href="tel:+5493534287484"
+                  className="text-primary hover:underline hover:text-primary-dark transition-colors"
+                >
+                  (+54 9 353) 4287484
+                </a>
               </div>
             </li>
             <li className="flex items-start">
               <FaWhatsapp className="text-primary mt-1 mr-4" />
               <div>
                 <h3 className="font-semibold">WhatsApp</h3>
-                <a href="https://web.whatsapp.com/send?phone=5493534287484&text=Hola" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                <a
+                  href="https://wa.me/5493534287484?text=Hola"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline hover:text-primary-dark transition-colors"
+                >
                   (+54 9 353) 4287484
                 </a>
               </div>
@@ -89,14 +99,27 @@ const Contacto: React.FC = () => {
               <FaMapMarkerAlt className="text-primary mt-1 mr-4" />
               <div>
                 <h3 className="font-semibold">Ubicación</h3>
-                <p>Villa María, Córdoba, Argentina</p>
+                <a
+                  href="https://maps.google.com/?q=Villa+María,+Córdoba,+Argentina"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline hover:text-primary-dark transition-colors"
+                >
+                  Villa María, Córdoba, Argentina
+                </a>
               </div>
             </li>
             <li className="flex items-start">
               <FaEnvelope className="text-primary mt-1 mr-4" />
               <div>
                 <h3 className="font-semibold">Email</h3>
-                <a href="mailto:ricardomontero.floresart@gmail.com" className="text-primary hover:underline">
+                <a
+                  href={
+                    "https://mail.google.com/mail/?view=cm&fs=1" +
+                    "&to=ricardomontero.floresart@gmail.com" +
+                    "&su=Consulta%20desde%20sitio%20web"}
+                  className="text-primary hover:underline hover:text-primary-dark transition-colors"
+                >
                   ricardomontero.floresart@gmail.com
                 </a>
               </div>

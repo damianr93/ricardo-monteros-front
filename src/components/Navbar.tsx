@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { HiMenu, HiX } from 'react-icons/hi'
-import { FaInstagram, FaFacebookF, FaWhatsapp, FaChevronRight } from 'react-icons/fa'
+import { FaWhatsapp, FaChevronRight, FaEnvelope } from 'react-icons/fa'
 import { NavLink } from 'react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../store/store'
@@ -59,8 +59,8 @@ const Navbar: React.FC = () => {
     <>
       <header
         className={`fixed w-full z-50 transition-all duration-300 overflow-visible ${isScrolled
-            ? 'bg-primary-light backdrop-blur bg-opacity-90'
-            : 'bg-primary-light'
+          ? 'bg-primary-light backdrop-blur bg-opacity-90'
+          : 'bg-primary-light'
           }`}
       >
         <div className="py-4">
@@ -111,11 +111,26 @@ const Navbar: React.FC = () => {
             </nav>
 
             <div className="flex items-center space-x-4">
-              {[FaInstagram, FaFacebookF, FaWhatsapp].map((Icon, i) => (
-                <a key={i} href="#" className="text-secondary-darkest hover:text-primary transition">
-                  <Icon className="w-5 h-5" />
-                </a>
-              ))}
+              <a
+                className="text-secondary-darkest hover:text-primary transition"
+                href="https://wa.me/5493534287484?text=Hola"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaWhatsapp className="w-5 h-5" />
+              </a>
+              <a
+                className="text-secondary-darkest hover:text-primary transition"
+                href={
+                  "https://mail.google.com/mail/?view=cm&fs=1" +
+                  "&to=ricardomontero.floresart@gmail.com" +
+                  "&su=Consulta%20desde%20sitio%20web"
+                }
+              >
+                <FaEnvelope className="h-6 w-6 mr-3" />
+
+              </a>
+
               <button
                 className="md:hidden text-secondary-darkest"
                 onClick={() => setDrawerOpen(true)}
@@ -126,7 +141,7 @@ const Navbar: React.FC = () => {
             </div>
           </div>
         </div>
-      </header>
+      </header >
 
       <div
         className={`fixed top-0 right-0 h-full w-3/4 max-w-xs bg-primary-light p-6 shadow-xl transition-transform duration-300 lg:hidden z-50 overflow-y-auto ${drawerOpen ? 'translate-x-0' : 'translate-x-full'
@@ -182,12 +197,14 @@ const Navbar: React.FC = () => {
         </ul>
       </div>
 
-      {drawerOpen && (
-        <div
-          className="fixed inset-0 bg-secondary-darkest bg-opacity-30 z-40 lg:hidden"
-          onClick={() => setDrawerOpen(false)}
-        />
-      )}
+      {
+        drawerOpen && (
+          <div
+            className="fixed inset-0 bg-secondary-darkest bg-opacity-30 z-40 lg:hidden"
+            onClick={() => setDrawerOpen(false)}
+          />
+        )
+      }
     </>
   )
 }

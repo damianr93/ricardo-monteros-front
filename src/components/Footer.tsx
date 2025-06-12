@@ -3,8 +3,6 @@ import {
   FaPhoneAlt,
   FaMapMarkerAlt,
   FaEnvelope,
-  FaInstagram,
-  FaFacebookF,
   FaWhatsapp
 } from 'react-icons/fa'
 
@@ -20,11 +18,17 @@ const Footer: React.FC = () => (
         <ul className="space-y-4">
           <li className="flex items-center">
             <FaPhoneAlt className="h-6 w-6 mr-3" />
-            <span>+54 9 353 4287484</span>
+            <a href="tel:+5493534287484">
+              <span>+54 9 353 4287484</span>
+            </a>
+
           </li>
           <li className="flex items-center">
             <FaWhatsapp className="h-6 w-6 mr-3" />
-            <span>+54 9 353 4287484</span>
+            <a href="https://wa.me/5493534287484?text=Hola">
+              <span>+54 9 353 4287484</span>
+            </a>
+
           </li>
           <li className="flex items-start">
             <FaMapMarkerAlt className="h-6 w-6 mr-3 mt-1" />
@@ -35,7 +39,13 @@ const Footer: React.FC = () => (
           </li>
           <li className="flex items-center">
             <FaEnvelope className="h-6 w-6 mr-3" />
-            <span>ricardomontero.floresart@gmail.com</span>
+            <a href={
+              "https://mail.google.com/mail/?view=cm&fs=1" +
+              "&to=ricardomontero.floresart@gmail.com" +
+              "&su=Consulta%20desde%20sitio%20web"
+            }>
+              <span>ricardomontero.floresart@gmail.com</span>
+            </a>
           </li>
         </ul>
       </div>
@@ -65,7 +75,7 @@ const Footer: React.FC = () => (
       </div>
 
       {/* Redes sociales */}
-      <div>
+      {/* <div>
         <h4 className="font-heading text-2xl mb-6">
           Síguenos
         </h4>
@@ -83,7 +93,7 @@ const Footer: React.FC = () => (
             </li>
           ))}
         </ul>
-      </div>
+      </div> */}
     </div>
 
     {/* Barra inferior */}
