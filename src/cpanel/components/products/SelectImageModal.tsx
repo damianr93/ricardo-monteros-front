@@ -19,6 +19,7 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
     const [selectedImages, setSelectedImages] = useState<string[]>(initialSelected);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
     const { list, loading, error, nextToken, hasMore } = useSelector((state: RootState) => state.images);
 
     const loadNextPage = () => {
@@ -26,8 +27,6 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
             dispatch(fetchImagesPaginated(nextToken ?? undefined));
         }
     };
-
-
 
     const ITEMS_PER_PAGE = 12; // 3x4 grid
 
@@ -70,23 +69,14 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
         setCurrentPage(page);
     };
 
-    // const selectAllCurrentPage = () => {
-    //     const currentPageUrls = currentImages.map(img => img.url);
-    //     const newSelected = [...selectedImages];
+    const handleImageClick = (e: React.MouseEvent, imageUrl: string) => {
+        e.stopPropagation();
+        setPreviewImage(imageUrl);
+    };
 
-    //     currentPageUrls.forEach(url => {
-    //         if (!newSelected.includes(url)) {
-    //             newSelected.push(url);
-    //         }
-    //     });
-
-    //     setSelectedImages(newSelected);
-    // };
-
-    // const deselectAllCurrentPage = () => {
-    //     const currentPageUrls = currentImages.map(img => img.url);
-    //     setSelectedImages(prev => prev.filter(url => !currentPageUrls.includes(url)));
-    // };
+    const closePreview = () => {
+        setPreviewImage(null);
+    };
 
     const renderPaginationButtons = () => {
         const buttons = [];
@@ -105,7 +95,7 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
                 <button
                     key="prev"
                     onClick={() => goToPage(currentPage - 1)}
-                    className="px-3 py-1 border rounded hover:bg-gray-50"
+                    className="px-3 py-1 border border-primary-muted rounded hover:bg-primary-light transition"
                 >
                     ←
                 </button>
@@ -118,9 +108,9 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
                 <button
                     key={i}
                     onClick={() => goToPage(i)}
-                    className={`px-3 py-1 border rounded ${i === currentPage
-                        ? 'bg-blue-500 text-white'
-                        : 'hover:bg-gray-50'
+                    className={`px-3 py-1 border rounded transition ${i === currentPage
+                        ? 'bg-primary text-white border-primary'
+                        : 'border-primary-muted hover:bg-primary-light'
                         }`}
                 >
                     {i}
@@ -134,7 +124,7 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
                 <button
                     key="next"
                     onClick={() => goToPage(currentPage + 1)}
-                    className="px-3 py-1 border rounded hover:bg-gray-50"
+                    className="px-3 py-1 border border-primary-muted rounded hover:bg-primary-light transition"
                 >
                     →
                 </button>
@@ -146,11 +136,11 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
 
     if (loading) {
         return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <div className="fixed inset-0 bg-secondary-darkest bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-secondary-lightest rounded-lg p-6 max-w-md w-full">
                     <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                        <p>Cargando imágenes...</p>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                        <p className="text-secondary-darkest">Cargando imágenes...</p>
                     </div>
                 </div>
             </div>
@@ -159,20 +149,20 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
 
     if (error) {
         return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <div className="fixed inset-0 bg-secondary-darkest bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-secondary-lightest rounded-lg p-6 max-w-md w-full">
                     <div className="text-center py-8">
-                        <p className="text-red-500 mb-4">Error al cargar imágenes: {error}</p>
+                        <p className="text-secondary-accent mb-4">Error al cargar imágenes: {error}</p>
                         <div className="flex justify-center space-x-2">
                             <button
                                 onClick={() => dispatch(fetchImagesPaginated())}
-                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition"
                             >
                                 Reintentar
                             </button>
                             <button
                                 onClick={onClose}
-                                className="px-4 py-2 border rounded"
+                                className="px-4 py-2 border border-primary-muted rounded hover:bg-primary-light transition"
                             >
                                 Cerrar
                             </button>
@@ -184,158 +174,179 @@ const SelectExistingImagesModal: React.FC<SelectExistingImagesModalProps> = ({
     }
 
     return (
-        <div className="fixed mt-20 pt-10 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 max-w-6xl w-full max-h-[90vh] flex flex-col">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">Seleccionar imágenes existentes</h3>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 text-xl font-bold w-8 h-8 flex items-center justify-center"
-                    >
-                        ✕
-                    </button>
-                </div>
-
-                {/* Búsqueda */}
-                <div className="mb-4">
-                    <input
-                        type="text"
-                        placeholder="Buscar imágenes..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                {/* Controles de selección */}
-                {currentImages.length > 0 && (
-                    <div className="flex justify-between items-center mb-4 text-sm">
-                        {/* <div className="flex space-x-2">
-                            <button
-                                onClick={selectAllCurrentPage}
-                                className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded"
-                            >
-                                Seleccionar página
-                            </button>
-                            <button
-                                onClick={deselectAllCurrentPage}
-                                className="px-3 py-1 text-red-600 hover:bg-red-50 rounded"
-                            >
-                                Deseleccionar página
-                            </button>
-                        </div> */}
-                        <span className="text-gray-500">
-                            Página {currentPage} de {totalPages} | {filteredImages.length} imágenes
-                        </span>
+        <>
+            <div className="fixed mt-20 pt-10 inset-0 bg-secondary-darkest bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-secondary-lightest rounded-lg p-8 max-w-6xl w-full max-h-[90vh] flex flex-col">
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold font-heading text-secondary-darkest">
+                            Seleccionar imágenes existentes
+                        </h3>
+                        <button
+                            onClick={onClose}
+                            className="text-secondary-light hover:text-secondary-darkest text-xl font-bold w-8 h-8 flex items-center justify-center transition"
+                        >
+                            ✕
+                        </button>
                     </div>
-                )}
 
-                {/* Grid de imágenes */}
-                <div className="flex-1 overflow-y-auto">
-                    {filteredImages.length === 0 ? (
-                        <div className="text-center py-8">
-                            <p className="text-gray-500 mb-4">
-                                {searchTerm ? 'No se encontraron imágenes' : 'No hay imágenes disponibles'}
-                            </p>
-                            {!searchTerm && (
-                                <button
-                                    onClick={() => dispatch(fetchImagesPaginated())}
-                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                >
-                                    Recargar
-                                </button>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {currentImages.map((image: Image) => (
-                                <div
-                                    key={image.key}
-                                    className={`relative border-2 rounded-md overflow-hidden cursor-pointer transition-all hover:shadow-lg
-                                        ${selectedImages.includes(image.url)
-                                            ? 'border-blue-500 ring-2 ring-blue-200'
-                                            : 'border-gray-200 hover:border-gray-300'
-                                        }`}
-                                    onClick={() => toggleImageSelection(image.url)}
-                                >
-                                    <img
-                                        src={image.url}
-                                        alt={`Imagen ${image.key}`}
-                                        className="w-full h-32 object-cover"
-                                        onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDIwMCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMjgiIGZpbGw9IiNGM0Y0RjYiLz48cGF0aCBkPSJNNjggNzJIMTMyVjg0SDY4VjcyWiIgZmlsbD0iIzlDQTNBRiIvPjwvc3ZnPg==';
-                                        }}
-                                    />
+                    {/* Búsqueda */}
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="Buscar imágenes..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full px-3 py-2 border border-primary-muted rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-secondary-lightest text-secondary-darkest"
+                        />
+                    </div>
 
-                                    {selectedImages.includes(image.url) && (
-                                        <div className="absolute inset-0 bg-blue-500 bg-opacity-30 flex items-center justify-center">
-                                            <div className="bg-blue-500 rounded-full w-8 h-8 flex items-center justify-center">
-                                                <span className="text-white text-lg font-bold">✓</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Información adicional en hover */}
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-2 opacity-0 hover:opacity-100 transition-opacity">
-                                        <p className="truncate">{image.key.split('/').pop()}</p>
-                                        <p>{(image.size / 1024).toFixed(1)} KB</p>
-                                    </div>
-                                </div>
-                            ))}
+                    {/* Controles de selección */}
+                    {currentImages.length > 0 && (
+                        <div className="flex justify-between items-center mb-4 text-sm">
+                            <span className="text-secondary-light font-body">
+                                Página {currentPage} de {totalPages} | {filteredImages.length} imágenes
+                            </span>
                         </div>
                     )}
-                </div>
 
-                {hasMore && (
-                    <div className="mt-4 flex justify-center">
-                        <button
-                            onClick={loadNextPage}
-                            disabled={loading}
-                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                        >
-                            {loading ? 'Cargando...' : 'Cargar más'}
-                        </button>
+                    {/* Grid de imágenes */}
+                    <div className="flex-1 overflow-y-auto">
+                        {filteredImages.length === 0 ? (
+                            <div className="text-center py-8">
+                                <p className="text-secondary-light mb-4 font-body">
+                                    {searchTerm ? 'No se encontraron imágenes' : 'No hay imágenes disponibles'}
+                                </p>
+                                {!searchTerm && (
+                                    <button
+                                        onClick={() => dispatch(fetchImagesPaginated())}
+                                        className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition"
+                                    >
+                                        Recargar
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {currentImages.map((image: Image) => (
+                                    <div
+                                        key={image.key}
+                                        className={`relative border-2 rounded-md overflow-hidden cursor-pointer transition-all hover:shadow-lg group
+                                            ${selectedImages.includes(image.url)
+                                                ? 'border-primary ring-2 ring-primary-light'
+                                                : 'border-primary-muted hover:border-primary'
+                                            }`}
+                                        onClick={() => toggleImageSelection(image.url)}
+                                    >
+                                        <img
+                                            src={image.url}
+                                            alt={`Imagen ${image.key}`}
+                                            className="w-full h-32 object-cover"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDIwMCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMjgiIGZpbGw9IiNGM0Y0RjYiLz48cGF0aCBkPSJNNjggNzJIMTMyVjg0SDY4VjcyWiIgZmlsbD0iIzlDQTNBRiIvPjwvc3ZnPg==';
+                                            }}
+                                        />
+
+                                        {/* Botón de previsualización */}
+                                        <button
+                                            onClick={(e) => handleImageClick(e, image.url)}
+                                            className="absolute top-2 right-2 bg-secondary-darkest bg-opacity-70 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity text-sm"
+                                        >
+                                            👁️
+                                        </button>
+
+                                        {selectedImages.includes(image.url) && (
+                                            <div className="absolute inset-0 bg-primary bg-opacity-30 flex items-center justify-center">
+                                                <div className="bg-primary rounded-full w-8 h-8 flex items-center justify-center">
+                                                    <span className="text-white text-lg font-bold">✓</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Información adicional en hover */}
+                                        <div className="absolute bottom-0 left-0 right-0 bg-secondary-darkest bg-opacity-70 text-white text-xs p-2 opacity-0 hover:opacity-100 transition-opacity">
+                                            <p className="truncate">{image.key.split('/').pop()}</p>
+                                            <p>{(image.size / 1024).toFixed(1)} KB</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                )}
 
-                {/* Paginación */}
-                {totalPages > 1 && (
-                    <div className="flex justify-center items-center mt-4 space-x-1">
-                        {renderPaginationButtons()}
-                    </div>
-                )}
+                    {hasMore && (
+                        <div className="mt-4 flex justify-center">
+                            <button
+                                onClick={loadNextPage}
+                                disabled={loading}
+                                className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark disabled:opacity-50 transition"
+                            >
+                                {loading ? 'Cargando...' : 'Cargar más'}
+                            </button>
+                        </div>
+                    )}
 
-                {/* Footer */}
-                <div className="flex justify-between items-center mt-6 pt-4 border-t">
-                    <p className="text-sm text-gray-500">
-                        {selectedImages.length} seleccionadas de {filteredImages.length} imágenes
-                    </p>
-                    <div className="flex space-x-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={selectedImages.length === 0}
-                            className={`px-4 py-2 rounded font-medium transition-colors
-                                ${selectedImages.length > 0
-                                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                }`}
-                        >
-                            Seleccionar ({selectedImages.length})
-                        </button>
+                    {/* Paginación */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center mt-4 space-x-1">
+                            {renderPaginationButtons()}
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <div className="flex justify-between items-center mt-6 pt-4 border-t border-primary-muted">
+                        <p className="text-sm text-secondary-light font-body">
+                            {selectedImages.length} seleccionadas de {filteredImages.length} imágenes
+                        </p>
+                        <div className="flex space-x-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-4 py-2 border border-primary-muted rounded hover:bg-primary-light transition font-body"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={selectedImages.length === 0}
+                                className={`px-4 py-2 rounded font-medium transition-colors font-body
+                                    ${selectedImages.length > 0
+                                        ? 'bg-primary text-white hover:bg-primary-dark'
+                                        : 'bg-primary-muted text-secondary-light cursor-not-allowed'
+                                    }`}
+                            >
+                                Seleccionar ({selectedImages.length})
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            {/* Modal de previsualización */}
+            {previewImage && (
+                <div
+                    className="fixed inset-0 bg-secondary-darkest bg-opacity-80 flex items-center justify-center z-[60]"
+                    onClick={closePreview}
+                >
+                    <div className="relative w-full max-w-4xl h-[80vh] p-4">
+                        <button
+                            onClick={closePreview}
+                            className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-primary-dark transition z-10"
+                        >
+                            ✕
+                        </button>
+                        <img
+                            src={previewImage}
+                            alt="Preview"
+                            className="w-full h-full object-contain rounded-lg shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 

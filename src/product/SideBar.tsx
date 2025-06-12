@@ -17,7 +17,6 @@ interface SidebarProps {
   isLoggedIn: boolean
 }
 
-
 const Sidebar: React.FC<SidebarProps> = ({
   className = '',
   selectedId,
@@ -40,23 +39,22 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   useEffect(() => {
     dispatch(fetchCategories())
-  }
-    , [dispatch])
+  }, [dispatch])
 
   return (
-    <aside className={`${className} w-64 bg-white mt-10 p-8 border-r border-gray-200 sticky top-16 h-[calc(100vh-4rem)] overflow-auto`}>
+    <aside className={`${className} w-64 bg-secondary-lightest mt-10 p-6 border-r border-secondary-dark h-[calc(100vh-4rem)] sticky top-16 overflow-auto`}>
       {/* Bloque de autenticación */}
       {!isLoggedIn ? (
         <div className="mb-6 space-y-2">
           <button
             onClick={onLoginClick}
-            className="w-full bg-accent-coral text-black py-2 rounded-md hover:bg-accent-coral transition"
+            className="w-full bg-primary text-secondary-lightest py-2 rounded-md hover:bg-primary-dark transition"
           >
             Iniciar Sesión
           </button>
           <button
             onClick={onRegisterClick}
-            className="w-full border border-accent-coral text-accent-coral py-2 rounded-md hover:bg-accent-coral-light hover:text-white transition"
+            className="w-full border border-primary text-primary py-2 rounded-md hover:bg-primary-light hover:text-secondary-lightest transition"
           >
             Registrarse
           </button>
@@ -65,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="mb-6">
           <button
             onClick={onLogoutClick}
-            className="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+            className="w-full bg-secondary-accent text-secondary-lightest py-2 rounded-md hover:bg-secondary-dark transition"
           >
             Cerrar Sesión
           </button>
@@ -74,52 +72,48 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Categorías */}
       <div>
-        <h3 className="text-xl font-semibold text-gray-800 uppercase mb-4">Categorías</h3>
-        <ul className="space-y-2">
-          {categories.length === 0 ? (
-            <p className="text-gray-500 italic">No hay categorías disponibles</p>
-          ) : (
-            <ul className="space-y-2">
-              {categories.map(cat => (
-                cat.available && (
-                  <li key={cat.id}>
-                    <button
-                      onClick={() => onSelect(cat.name)}
-                      className={`w-full text-left px-4 py-2 rounded-md transition focus:outline-none ${selectedId === cat.name
-                        ? 'bg-accent-coral text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                    >
-                      {cat.name.toUpperCase()}
-                    </button>
-                  </li>
-                )
-              ))}
-            </ul>
-          )}
-        </ul>
+        <h3 className="text-xl font-heading mb-4 text-primary uppercase">Categorías</h3>
+        {categories.length === 0 ? (
+          <p className="text-secondary-muted italic">No hay categorías disponibles</p>
+        ) : (
+          <ul className="space-y-2">
+            {categories.map(cat =>
+              cat.available && (
+                <li key={cat.id}>
+                  <button
+                    onClick={() => onSelect(cat.name)}
+                    className={`w-full text-left px-4 py-2 rounded-md transition focus:outline-none ${selectedId === cat.name
+                        ? 'bg-primary text-secondary-lightest'
+                        : 'text-secondary-darkest hover:bg-secondary-light'
+                      }`}
+                  >
+                    {cat.name.toUpperCase()}
+                  </button>
+                </li>
+              )
+            )}
+          </ul>
+        )}
       </div>
 
       {/* Carrito (solo si está logueado) */}
       {isLoggedIn && (
         <div className="mt-8">
-          <h3 className="text-xl font-semibold text-gray-800 uppercase mb-4">Pedido</h3>
+          <h3 className="text-xl font-heading mb-4 text-primary uppercase">Pedido</h3>
           {cartItems.length === 0 ? (
-            <p className="text-gray-500">Tu pedido está vacío</p>
+            <p className="text-secondary-muted">Tu pedido está vacío</p>
           ) : (
             <ul className="space-y-2 max-h-40 overflow-auto mb-4">
               {uniqueItems.map(id => {
                 const item = cartItems.find(i => i.id === id) as Product
                 return (
-                  <li key={id} className="flex justify-between items-center text-sm">
-                    <div className="flex items-center space-x-2">
-                      <span>{item.title}</span>
-                    </div>
+                  <li key={id} className="flex justify-between items-center text-sm text-secondary-darkest">
+                    <span>{item.title}</span>
                     <div className="flex items-center space-x-2">
                       <span>x{counts[id]}</span>
                       <button
                         onClick={() => onRemoveFromCart(id)}
-                        className="text-red-500 hover:text-red-700 transition"
+                        className="text-secondary-accent hover:text-secondary-dark transition"
                       >
                         🗑️
                       </button>
@@ -132,7 +126,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             disabled={cartItems.length === 0}
             onClick={onCheckoutClick}
-            className="w-full bg-accent-coral text-white py-2 rounded-md hover:bg-accent-coral-light transition disabled:opacity-50"
+            className="w-full bg-primary text-secondary-lightest py-2 rounded-md hover:bg-primary-dark transition disabled:opacity-50"
           >
             Realizar pedido
           </button>

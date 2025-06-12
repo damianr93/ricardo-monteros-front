@@ -22,26 +22,19 @@ const SubproductosCarousel: React.FC = () => {
             ])
             setIsLoading(false)
         }
-
         loadData()
     }, [dispatch])
 
     const blocks = useMemo(() => {
-
         return categories
             .filter(c => c.available)
             .map(category => {
-
                 const product = products.find(p => p.category?.id === category.id)
-
                 if (!product) return null
-
                 return {
                     titleLines: [category.name.toUpperCase()],
-
                     backgroundImage: product.img?.[0] ?? null,
                     href: `/catalogo?item=${encodeURIComponent(category.name)}`,
-
                     productName: product.name
                 }
             })
@@ -57,9 +50,9 @@ const SubproductosCarousel: React.FC = () => {
 
     if (isLoading) {
         return (
-            <section className="py-12 bg-neutral-100">
+            <section className="py-12 bg-secondary-lightest">
                 <div className="container mx-auto px-4 text-center">
-                    <Loading/>
+                    <Loading />
                 </div>
             </section>
         )
@@ -67,31 +60,32 @@ const SubproductosCarousel: React.FC = () => {
 
     if (blocks.length === 0) {
         return (
-            <section className="py-12 bg-neutral-100">
+            <section className="py-12 bg-secondary-lightest">
                 <div className="container mx-auto px-4 text-center">
-                    <h2 className="font-heading text-brand-green text-3xl md:text-4xl font-semibold">
+                    <h2 className="font-heading text-primary text-3xl md:text-4xl font-semibold">
                         Nuestros productos
                     </h2>
-                    <p className="mt-4">No hay productos disponibles en este momento.</p>
+                    <p className="mt-4 font-body text-secondary-darkest">
+                        No hay productos disponibles en este momento.
+                    </p>
                 </div>
             </section>
         )
     }
 
     const placeholderColors = [
-        'bg-brand-green-light',
-        'bg-brand-green',        
-        'bg-leaf-light',         
-        'bg-leaf',                
-        'bg-accent-coral-light',  
-        'bg-accent-coral'     
-    ];
-
+        'bg-primary-light',
+        'bg-primary-muted',
+        'bg-primary',
+        'bg-secondary-light',
+        'bg-secondary-accent',
+        'bg-secondary-dark'
+    ]
 
     return (
-        <section className="py-12 bg-neutral-100">
+        <section className="py-12 bg-secondary-lightest">
             <div className="container mx-auto px-4 text-center max-w-2xl mb-8">
-                <h2 className="font-heading text-brand-green text-3xl md:text-4xl font-semibold">
+                <h2 className="font-heading text-primary text-3xl md:text-4xl font-semibold">
                     Nuestros productos
                 </h2>
             </div>
@@ -123,13 +117,16 @@ const SubproductosCarousel: React.FC = () => {
                             <a
                                 href={block.href}
                                 className={`block w-full h-80 rounded-lg overflow-hidden shadow-lg relative group ${!block.backgroundImage ? placeholderColors[index % placeholderColors.length] : ''}`}
-                                style={block.backgroundImage ? {
-                                    backgroundImage: `url(${import.meta.env.VITE_BASE_AWS_URL}${block.backgroundImage})`,
-                                    backgroundSize: 'cover',
-                                    backgroundPosition: 'center',
-                                } : {}}
+                                style={
+                                    block.backgroundImage
+                                        ? {
+                                            backgroundImage: `url(${import.meta.env.VITE_BASE_AWS_URL}${block.backgroundImage})`,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center',
+                                        }
+                                        : {}
+                                }
                             >
-                                {/* Si no hay imagen, mostrar un texto alternativo */}
                                 {!block.backgroundImage && (
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <span className="text-white text-opacity-70 font-semibold text-lg">

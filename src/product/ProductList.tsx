@@ -9,7 +9,6 @@ interface ProductListProps {
 }
 
 const ProductList: React.FC<ProductListProps> = ({ items, isLoggedIn, onAddToCart }) => (
-  
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {items.map(item =>
       item.available && (
@@ -19,7 +18,8 @@ const ProductList: React.FC<ProductListProps> = ({ items, isLoggedIn, onAddToCar
           isLoggedIn={isLoggedIn}
           onAddToCart={onAddToCart}
         />
-      ))}
+      )
+    )}
   </div>
 )
 

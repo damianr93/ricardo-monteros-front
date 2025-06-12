@@ -9,18 +9,18 @@ import CustomTable, { Action, Column } from '../customTable'
 import Loading from '../../../components/loading'
 
 const columns: Column[] = [
-  { field: "name", headerName: "Nombre Producto", align: "left" },
-  { field: "title", headerName: "Titulo producto", align: "left" },
-  { field: "description", headerName: "Descripcion", align: "left" },
-  { field: "category.name", headerName: "Categoria", align: "left" },
-  { field: "price", headerName: "Precio", align: "left" },
-  { field: "available", headerName: "Activa", align: "left" },
-];
+  { field: 'name', headerName: 'Nombre Producto', align: 'left' },
+  { field: 'title', headerName: 'Título Producto', align: 'left' },
+  { field: 'description', headerName: 'Descripción', align: 'left' },
+  { field: 'category.name', headerName: 'Categoría', align: 'left' },
+  { field: 'price', headerName: 'Precio', align: 'left' },
+  { field: 'available', headerName: 'Activa', align: 'left' },
+]
 
 const actions: Action[] = [
-  { name: "editar", icon: <FaEdit />, color: "primary", tooltip: "Editar R/O" },
-  { name: "eliminar", icon: <FaTrash />, color: "secondary", tooltip: "Eliminar" }
-];
+  { name: 'editar', icon: <FaEdit />, color: 'primary', tooltip: 'Editar' },
+  { name: 'eliminar', icon: <FaTrash />, color: 'secondary', tooltip: 'Eliminar' }
+]
 
 const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -51,41 +51,37 @@ const ProductList: React.FC = () => {
         await dispatch(createProduct(data, imageFiles))
       }
       setShowForm(false)
-    } catch (error) {
-      console.error('Error al guardar el producto:', error)
-      // Opcionalmente puedes mostrar un mensaje de error aquí
+    } catch (err) {
+      console.error('Error al guardar el producto:', err)
     } finally {
       setIsSubmitting(false)
     }
-  };
+  }
 
   const handleActionClick = async (action: Action, row: Product) => {
-    if (action.name === "editar") {
-      setEditing(row);
+    if (action.name === 'editar') {
+      setEditing(row)
       setShowForm(true)
-    } else if (action.name === "eliminar") {
+    } else if (action.name === 'eliminar') {
+      setDeletingId(row.id)
       try {
-        // Establece el ID que está siendo eliminado
-        setDeletingId(row.id)
-        // Ejecuta la acción de eliminación
         await dispatch(deleteProduct(row.id))
-      } catch (error) {
-        console.error('Error al eliminar el producto:', error)
+      } catch (err) {
+        console.error('Error al eliminar el producto:', err)
       } finally {
-        // Elimina el ID al finalizar, independientemente del resultado
         setDeletingId(null)
       }
     }
-  };
+  }
 
   return (
     <div className="relative">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-heading">Productos</h2>
+        <h2 className="text-xl font-heading text-primary">Productos</h2>
         <button
           onClick={handleAdd}
-          className="p-2 bg-accent-coral text-white rounded flex items-center gap-2"
-          disabled={loading || deletingId !== null}
+          className="flex items-center gap-2 p-2 bg-primary text-secondary-lightest rounded hover:bg-primary-dark transition"
+          disabled={loading || !!deletingId}
         >
           <FaPlus /> Añadir
         </button>
@@ -96,9 +92,9 @@ const ProductList: React.FC = () => {
           <Loading />
         </div>
       ) : error ? (
-        <p className="text-red-500 p-4 bg-red-50 rounded">{error}</p>
+        <p className="text-accent-coral p-4 bg-secondary-lightest rounded">{error}</p>
       ) : products.length === 0 ? (
-        <p className="text-center py-10 text-gray-500">No hay productos disponibles</p>
+        <p className="text-center py-10 text-secondary-muted">No hay productos disponibles</p>
       ) : (
         <CustomTable
           columns={columns}
@@ -112,7 +108,7 @@ const ProductList: React.FC = () => {
 
       {showForm && (
         <ProductForm
-          initial={editing || undefined}
+          initial={editing ?? undefined}
           onSubmit={handleSubmit}
           onCancel={() => setShowForm(false)}
           isSubmitting={isSubmitting}
