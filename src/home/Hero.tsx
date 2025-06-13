@@ -13,27 +13,27 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: 1,
-    webp: '/img/slide-1.webp',
+    webp: '/img/slide-1.jpg',
     jpg: '/img/slide-1.jpg',
-    pix: '/img/slide-1-pix.jpg',
-    title: 'Dale vida a tus espacios',
-    subtitle: 'Flores artificiales de alta calidad para tu hogar.'
+    pix: '/img/slide-1.jpg',
+    title: 'Llegamos a todos los puntos del país',
+    subtitle: 'Envíos seguros y rápidos para que recibas tus flores en perfectas condiciones.'
   },
   {
     id: 2,
     webp: '/img/slide-2.webp',
-    jpg: '/img/slide-2.jpg',
-    pix: '/img/slide-2-pix.jpg',
-    title: 'Texturas que enamoran',
-    subtitle: 'Cerámica artesanal y piezas únicas con encanto.'
+    jpg: '/img/slide-2.webp',
+    pix: '/img/slide-2.webp',
+    title: 'Dale vida a tus espacios',
+    subtitle: 'Flores artificiales de alta calidad para tu hogar.'
   },
   {
     id: 3,
-    webp: '/img/slide-3.webp',
-    jpg: '/img/slide-3.jpg',
-    pix: '/img/slide-3-pix.jpg',
-    title: 'Detalles que inspiran',
-    subtitle: 'Accesorios y ornamentos para una decoración perfecta.'
+    webp: '/img/slide-3.jpeg',
+    jpg: '/img/slide-3.jpeg',
+    pix: '/img/slide-3.jpeg',
+    title: 'Atención personalizada en cada pedido',
+    subtitle: 'Te acompañamos desde la selección hasta la entrega de tus decoraciones.'
   },
 ]
 

@@ -6,7 +6,7 @@ const QuienesSomos: React.FC = () => {
       {/* Hero mejorado */}
       <div
         className="relative h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden shadow-lg mb-16"
-        style={{ backgroundImage: "url('/img/slide-3.webp')", backgroundSize: 'cover', backgroundPosition: 'center' }}
+        style={{ backgroundImage: "url('/img/slide-2.webp')", backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-transparent to-black/70 flex items-center justify-center">
           <h1 className="text-secondary-lightest text-3xl md:text-4xl lg:text-5xl font-heading">

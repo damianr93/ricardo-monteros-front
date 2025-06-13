@@ -18,7 +18,7 @@ const InitialMessage: React.FC = () => {
                     href="/catalogo"
                     className="inline-block bg-secondary-accent text-white font-medium text-base px-6 py-3 rounded-lg hover:bg-secondary-dark transition"
                 >
-                    Explorar productos
+                    Ver Catalogo
                 </a>
             </div>
         </section>

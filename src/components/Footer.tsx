@@ -23,12 +23,16 @@ const Footer: React.FC = () => (
             </a>
 
           </li>
-          <li className="flex items-center">
-            <FaWhatsapp className="h-6 w-6 mr-3" />
-            <a href="https://wa.me/5493534287484?text=Hola">
-              <span>+54 9 353 4287484</span>
-            </a>
-
+          <li className="flex items-start">
+            <FaWhatsapp className="h-6 w-6 mr-3 mt-1" />
+            <div className="flex flex-col space-y-2">
+              <a href="https://wa.me/5493534287484?text=Hola%20Ricardo%20Montero%20Flores%2C%20quiero%20realizar%20una%20cotizaci%C3%B3n">
+                <span>+54 9 353 4287484</span>
+              </a>
+              <a href="https://wa.me/5493535695764?text=Hola%20Ricardo%20Montero%20Flores%2C%20quiero%20realizar%20una%20cotizaci%C3%B3n">
+                <span>+54 9 353 5695764</span>
+              </a>
+            </div>
           </li>
           <li className="flex items-start">
             <FaMapMarkerAlt className="h-6 w-6 mr-3 mt-1" />
@@ -99,6 +103,15 @@ const Footer: React.FC = () => (
     {/* Barra inferior */}
     <div className="mt-12 border-t border-secondary-darkest border-opacity-20 pt-6 pb-4">
       <div className="container mx-auto px-6 text-center text-sm">
+        {/* Logo de la empresa */}
+        <div className="mb-4">
+          <img
+            src="/img/logo_sin_fondo.png"
+            alt="Ricardo Montero Decoraciones"
+            className="h-12 w-auto mx-auto"
+          />
+        </div>
+
         <span className="text-secondary-darkest">&copy; 2025 Ricardo Montero Decoraciones. Todos los derechos reservados.</span>
         <p className="text-xs text-secondary-darkest/60 flex items-center justify-center space-x-2 mt-2">
           <span>Desarrollado por</span>

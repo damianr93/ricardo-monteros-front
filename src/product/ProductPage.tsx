@@ -11,11 +11,12 @@ import { fetchMe, logoutUser } from '../store/logged/thunks'
 import { fetchProducts } from '../store/products/thunks'
 import { Product } from '../data/types'
 import Sidebar from './SideBar'
+import WelcomeMessage from './WelcomeMessage'
 
 const ProductPage: React.FC = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const itemParam = searchParams.get('item') || 'flores'
+  const itemParam = searchParams.get('item') || ''
   const [selectedCategory, setSelectedCategory] = useState<string>(itemParam)
   const [mode, setMode] = useState<'browse' | 'login' | 'register' | 'checkout'>('browse')
   const [cartItems, setCartItems] = useState<Product[]>([])
@@ -60,9 +61,43 @@ const ProductPage: React.FC = () => {
   const handlePaymentSuccess = () => { setCartItems([]); setMode('browse') }
   const onLogoutClick = () => dispatch(logoutUser())
 
-  const itemsToShow = products.filter(
-    item => item.category?.name.toLowerCase() === selectedCategory.toLowerCase()
-  )
+  const itemsToShow = selectedCategory
+    ? products.filter(item => item.category?.name.toLowerCase() === selectedCategory.toLowerCase())
+    : []
+
+  const renderMainContent = () => {
+    if (mode === 'login') return <LoginForm onSuccess={handleAuthSuccess} />
+    if (mode === 'register') return <RegisterForm onSuccess={handleAuthSuccess} />
+    if (mode === 'checkout') {
+      return (
+        <PaymentForm
+          items={cartItems}
+          total={cartItems.reduce((sum, i) => sum + i.price, 0)}
+          onSuccess={handlePaymentSuccess}
+        />
+      )
+    }
+
+    // Modo browse
+    if (!selectedCategory) {
+      return (
+        <WelcomeMessage
+          onLoginClick={handleLoginClick}
+          onRegisterClick={handleRegisterClick}
+        />
+      )
+    }
+
+    if (itemsToShow.length === 0) {
+      return (
+        <p className="text-center text-secondary-muted italic">
+          {products.length === 0 ? 'Cargando productos...' : 'No hay productos en esta categoría.'}
+        </p>
+      )
+    }
+
+    return <ProductList items={itemsToShow} isLoggedIn={isLoggedIn} onAddToCart={handleAddToCart} />
+  }
 
   return (
     <div className="flex flex-col lg:flex-row pt-16 min-h-screen bg-secondary-lightest">
@@ -91,20 +126,7 @@ const ProductPage: React.FC = () => {
 
       {/* Main */}
       <main className="flex-1 p-6 pt-14 lg:p-12">
-        {mode === 'login' && <LoginForm onSuccess={handleAuthSuccess} />}
-        {mode === 'register' && <RegisterForm onSuccess={handleAuthSuccess} />}
-        {mode === 'browse' && (
-          itemsToShow.length === 0
-            ? <p className="text-center text-secondary-muted italic">{products.length === 0 ? 'Cargando productos...' : 'No hay productos en esta categoría.'}</p>
-            : <ProductList items={itemsToShow} isLoggedIn={isLoggedIn} onAddToCart={handleAddToCart} />
-        )}
-        {mode === 'checkout' && (
-          <PaymentForm
-            items={cartItems}
-            total={cartItems.reduce((sum, i) => sum + i.price, 0)}
-            onSuccess={handlePaymentSuccess}
-          />
-        )}
+        {renderMainContent()}
       </main>
     </div>
   )

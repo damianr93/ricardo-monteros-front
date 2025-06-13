@@ -113,7 +113,7 @@ const Navbar: React.FC = () => {
             <div className="flex items-center space-x-4">
               <a
                 className="text-secondary-darkest hover:text-primary transition"
-                href="https://wa.me/5493534287484?text=Hola"
+                href="https://wa.me/5493534287484?text=Hola%20Ricardo%20Montero%20Flores%2C%20quiero%20realizar%20una%20cotizaci%C3%B3n"
                 target="_blank"
                 rel="noopener noreferrer"
               >

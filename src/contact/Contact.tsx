@@ -58,7 +58,7 @@ const Contacto: React.FC = () => {
       {/* Hero */}
       <div
         className="relative h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden shadow-lg mb-16"
-        style={{ backgroundImage: `url('/img/slide-3.webp')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        style={{ backgroundImage: `url('/img/slide-2.webp')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-transparent to-black/70 flex items-center justify-center">
           <h1 className="text-secondary-lightest text-3xl md:text-4xl lg:text-5xl font-heading">Contacto</h1>
@@ -86,12 +86,20 @@ const Contacto: React.FC = () => {
               <div>
                 <h3 className="font-semibold">WhatsApp</h3>
                 <a
-                  href="https://wa.me/5493534287484?text=Hola"
+                  href="https://wa.me/5493534287484?text=Hola%20Ricardo%20Montero%20Flores%2C%20quiero%20realizar%20una%20cotizaci%C3%B3n"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline hover:text-primary-dark transition-colors"
                 >
                   (+54 9 353) 4287484
+                </a><br />
+                <a
+                  href="https://wa.me/5493535695764?text=Hola%20Ricardo%20Montero%20Flores%2C%20quiero%20realizar%20una%20cotizaci%C3%B3n"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline hover:text-primary-dark transition-colors"
+                >
+                  (+54 9 353) 5695764
                 </a>
               </div>
             </li>
