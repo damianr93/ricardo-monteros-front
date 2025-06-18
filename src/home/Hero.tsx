@@ -13,22 +13,30 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: 1,
+    webp: '/img/slide-0.jpeg',
+    jpg: '/img/slide-0.jpeg',
+    pix: '/img/slide-0.jpeg',
+    title: '',
+    subtitle: ''
+  },
+  {
+    id: 2,
     webp: '/img/slide-1.jpg',
     jpg: '/img/slide-1.jpg',
     pix: '/img/slide-1.jpg',
     title: 'Llegamos a todos los puntos del país',
-    subtitle: 'Envíos seguros y rápidos para que recibas tus flores en perfectas condiciones.'
-  },
-  {
-    id: 2,
-    webp: '/img/slide-2.webp',
-    jpg: '/img/slide-2.webp',
-    pix: '/img/slide-2.webp',
-    title: 'Dale vida a tus espacios',
-    subtitle: 'Flores artificiales de alta calidad para tu hogar.'
+    subtitle: 'Envíos seguros y rápidos para que recibas tus pedidos en perfectas condiciones.'
   },
   {
     id: 3,
+    webp: '/img/slide-2.webp',
+    jpg: '/img/slide-2.webp',
+    pix: '/img/slide-2.webp',
+    title: 'Productos que impulsan tu negocio',
+    subtitle: ''
+  },
+  {
+    id: 4,
     webp: '/img/slide-3.jpeg',
     jpg: '/img/slide-3.jpeg',
     pix: '/img/slide-3.jpeg',
@@ -138,11 +146,12 @@ const Hero: React.FC = () => {
               }
             }}
             className={`
-              w-3 h-3 rounded-full transition-all duration-300
-              ${currentSlide === idx
-                ? 'bg-accent-coral scale-125'
-                : 'bg-white/50 hover:bg-white'}
-            `}
+        w-3 h-3 rounded-full transition-all duration-300
+        border-2
+        ${currentSlide === idx
+                ? 'bg-accent-coral scale-125 border-white'
+                : 'bg-white/50 hover:bg-white border-transparent'}
+      `}
             aria-label={`Slide ${idx + 1}`}
           />
         ))}

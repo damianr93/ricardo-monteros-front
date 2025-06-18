@@ -1,3 +1,4 @@
+import React from 'react'
 
 const QuienesSomos: React.FC = () => {
   return (
@@ -5,7 +6,11 @@ const QuienesSomos: React.FC = () => {
       {/* Hero mejorado */}
       <div
         className="relative h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden shadow-lg mb-16"
-        style={{ backgroundImage: "url('/img/slide-2.webp')", backgroundSize: 'cover', backgroundPosition: 'center' }}
+        style={{
+          backgroundImage: "url('/img/slide-2.webp')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-transparent to-black/70 flex items-center justify-center">
           <h1 className="text-secondary-lightest text-3xl md:text-4xl lg:text-5xl font-heading text-center px-4">
@@ -17,59 +22,13 @@ const QuienesSomos: React.FC = () => {
       {/* Sección de texto */}
       <section id="sobre-nosotros" className="py-16 bg-secondary-lightest">
         <div className="container mx-auto px-4 max-w-3xl">
+          {/* Contenido actualizado */}
+          <h2 className="font-heading text-2xl md:text-3xl text-secondary-darkest mb-4">
+            <strong>Tu éxito es nuestra misión:</strong> más de 30 años acompañando tu crecimiento.
+          </h2>
           <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
-            Más de dos décadas cultivando belleza y emociones: La historia de nuestra familia en <b>RICARDO MONTERO FLORES ARTIFICIALES</b>.
+            Somos una empresa familiar con más de tres décadas de experiencia, dedicada a la importación, venta mayorista y distribución de una amplia variedad de productos. Nos enorgullece ser tu socio estratégico, y brindarte la calidad y el respaldo que necesitás para que tu negocio siga creciendo.
           </p>
-
-          <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
-            En Ricardo Montero Flores Artificiales, creemos que cada detalle cuenta. Somos una empresa familiar con raíces profundas que desde hace más de 20 años, nos dedicamos a la venta mayorista de productos que embellecen hogares, eventos y que te acompañan en momentos especiales.
-          </p>
-
-          <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
-            Lo que comenzó como un sueño, hoy es una realidad que ha florecido gracias a la dedicación y el compromiso de cada generación. Distribuimos nuestros productos a empresas ubicadas en distintos puntos de nuestro país.
-          </p>
-
-          <p className="font-body text-secondary-darkest text-base md:text-lg mb-4">
-            Nos especializamos en una amplia gama de artículos cuidadosamente seleccionados:
-          </p>
-
-          <div className="space-y-4 mb-6">
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-green-600 rounded-full mt-3 flex-shrink-0"></div>
-              <p className="font-body text-secondary-darkest text-base md:text-lg">
-                <strong>Flores artificiales y plantas de alta calidad:</strong> Perfectas para decorar cualquier espacio, nuestras flores y plantas son la opción ideal para quienes buscan belleza duradera sin mantenimiento.
-              </p>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full mt-3 flex-shrink-0"></div>
-              <p className="font-body text-secondary-darkest text-base md:text-lg">
-                <strong>Coronas fúnebres:</strong> Con el mayor respeto y sensibilidad, elaboramos arreglos que acompañan en los momentos más difíciles, ofreciendo un homenaje digno y sereno.
-              </p>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-gradient-to-r from-pink-400 to-pink-600 rounded-full mt-3 flex-shrink-0"></div>
-              <p className="font-body text-secondary-darkest text-base md:text-lg">
-                <strong>Papeles y regalería:</strong> Porque sabemos que un regalo bien presentado habla por sí solo, encontrarás opciones creativas y originales para cada ocasión.
-              </p>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full mt-3 flex-shrink-0"></div>
-              <p className="font-body text-secondary-darkest text-base md:text-lg">
-                <strong>Macetas rotomoldeadas:</strong> Duraderas, versátiles y con diseños modernos, son el complemento ideal para tus plantas, tanto de interior como de exterior.
-              </p>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full mt-3 flex-shrink-0"></div>
-              <p className="font-body text-secondary-darkest text-base md:text-lg">
-                <strong>Decoración en cerámica:</strong> Piezas únicas que añaden un toque de arte y elegancia a cualquier ambiente, desde lo clásico hasta lo contemporáneo.
-              </p>
-            </div>
-          </div>
-
           {/* Imagen de la familia - centrada */}
           <div className="flex justify-center my-12">
             <img
@@ -78,14 +37,32 @@ const QuienesSomos: React.FC = () => {
               className="rounded-lg shadow-lg max-w-md w-full h-auto"
             />
           </div>
+          <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
+            Ofrecemos atención personalizada para que selecciones los productos ideales y nos encargamos de llevártelos hasta la puerta de tu local.
+          </p>
+          <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
+            En Ricardo Montero Flores Artificiales, entendemos el valor de cada producto que ofreces. Por eso, nos especializamos en crear y seleccionar por vos, productos novedosos de la mejor calidad, para que puedas ofrecerlos a tus clientes y seas parte de los momentos más significativos de su vida.
+          </p>
 
+          <h2 className="font-heading text-2xl md:text-3xl text-secondary-darkest mb-4">
+            Productos que impulsan tu negocio
+          </h2>
+          <ul className="list-disc list-inside font-body text-secondary-darkest text-base md:text-lg mb-6">
+            <li>Desde nuestros comienzos, nos dedicamos a la elaboración de Coronas fúnebres artesanales: con el máximo respeto y sensibilidad.</li>
+            <li>Importamos Flores y plantas artificiales de alta calidad, papeles y artículos de regalaría, floreros, macetas roto moldeadas y artículos de decoración en cerámica.</li>
+          </ul>
+
+          <h2 className="font-heading text-2xl md:text-3xl text-secondary-darkest mb-4">
+            Calidad y compromiso familiar
+          </h2>
           <p className="font-body text-secondary-darkest text-base md:text-lg mb-4">
-            En Ricardo Montero Flores Artificiales, cada producto es elegido o creado con el mismo amor y dedicación que si fuera para nuestra propia casa. Nuestro compromiso no es solo con la calidad, sino también con la atención personalizada que nos caracteriza. Sabemos que detrás de cada compra hay una historia, una celebración, un recuerdo, y nos enorgullece ser parte de ellos.
+            Somos Ricardo, Martin Montero y familia: lo que empezó como un sueño, hoy es una realidad que llega a florerías, comercios y funerarias de todo el país.
+          </p>
+          <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
+            Te invitamos a explorar nuestro catálogo y descubrir todo lo que podemos ofrecerte.
           </p>
 
-          <p className="font-body text-secondary-darkest text-base md:text-lg">
-            Gracias por permitirnos seguir siendo parte de tu negocio y por confiar en la trayectoria de una familia que, durante más de dos décadas, ha puesto el corazón en cada detalle. Te invitamos a explorar nuestro catálogo y descubrir todo lo que tenemos para ofrecerte.
-          </p>
+
 
           {/* Logo de la empresa - centrado y más pequeño */}
           <div className="flex justify-center mt-12">
