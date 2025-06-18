@@ -27,11 +27,19 @@ const slides: Slide[] = [
     title: 'Llegamos a todos los puntos del país',
     subtitle: 'Envíos seguros y rápidos para que recibas tus pedidos en perfectas condiciones.'
   },
+  // {
+  //   id: 3,
+  //   webp: '/img/slide-2.webp',
+  //   jpg: '/img/slide-2.webp',
+  //   pix: '/img/slide-2.webp',
+  //   title: 'Productos que impulsan tu negocio',
+  //   subtitle: ''
+  // },
   {
     id: 3,
-    webp: '/img/slide-2.webp',
-    jpg: '/img/slide-2.webp',
-    pix: '/img/slide-2.webp',
+    webp: '/img/slide-prueba.webp',
+    jpg: '/img/slide-prueba.webp',
+    pix: '/img/slide-prueba.webp',
     title: 'Productos que impulsan tu negocio',
     subtitle: ''
   },
