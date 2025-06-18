@@ -27,7 +27,7 @@ const QuienesSomos: React.FC = () => {
             <strong>Tu éxito es nuestra misión:</strong> más de 30 años acompañando tu crecimiento.
           </h2>
           <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
-            Somos una empresa familiar con más de tres décadas de experiencia, dedicada a la importación, venta mayorista y distribución de una amplia variedad de productos. Nos enorgullece ser tu socio estratégico, y brindarte la calidad y el respaldo que necesitás para que tu negocio siga creciendo.
+            Somos una <b>empresa familiar con más de tres décadas de experiencia</b>, dedicada a la <b>importación, venta mayorista y distribución de una amplia variedad de productos</b>. Nos enorgullece ser tu socio estratégico, y brindarte la calidad y el respaldo que necesitás para que tu negocio siga creciendo.
           </p>
           {/* Imagen de la familia - centrada */}
           <div className="flex justify-center my-12">
@@ -38,18 +38,18 @@ const QuienesSomos: React.FC = () => {
             />
           </div>
           <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
-            Ofrecemos atención personalizada para que selecciones los productos ideales y nos encargamos de llevártelos hasta la puerta de tu local.
+            Ofrecemos <b>atención personalizada</b> para que selecciones los productos ideales y nos encargamos de <b>llevártelos hasta la puerta de tu local</b>.
           </p>
           <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
-            En Ricardo Montero Flores Artificiales, entendemos el valor de cada producto que ofreces. Por eso, nos especializamos en crear y seleccionar por vos, productos novedosos de la mejor calidad, para que puedas ofrecerlos a tus clientes y seas parte de los momentos más significativos de su vida.
+            En <b>Ricardo Montero Flores Artificiales</b>, entendemos el valor de cada producto que ofreces. Por eso, nos especializamos en crear y seleccionar por vos, productos novedosos de la mejor calidad, para que puedas ofrecerlos a tus clientes y seas parte de los momentos más significativos de su vida.
           </p>
 
           <h2 className="font-heading text-2xl md:text-3xl text-secondary-darkest mb-4">
             Productos que impulsan tu negocio
           </h2>
           <ul className="list-disc list-inside font-body text-secondary-darkest text-base md:text-lg mb-6">
-            <li>Desde nuestros comienzos, nos dedicamos a la elaboración de Coronas fúnebres artesanales: con el máximo respeto y sensibilidad.</li>
-            <li>Importamos Flores y plantas artificiales de alta calidad, papeles y artículos de regalaría, floreros, macetas roto moldeadas y artículos de decoración en cerámica.</li>
+            <li>Desde nuestros comienzos, nos dedicamos a la elaboración de <b>Coronas fúnebres artesanales</b>: con el máximo respeto y sensibilidad.</li>
+            <li>Importamos <b>Flores y plantas artificiales de alta calidad, papeles y artículos de regalaría, floreros, macetas roto moldeadas y artículos de decoración en cerámica</b>.</li>
           </ul>
 
           <h2 className="font-heading text-2xl md:text-3xl text-secondary-darkest mb-4">
