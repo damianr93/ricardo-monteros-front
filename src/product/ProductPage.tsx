@@ -9,9 +9,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../store/store'
 import { fetchMe, logoutUser } from '../store/logged/thunks'
 import { fetchProducts } from '../store/products/thunks'
-import { Product } from '../data/types'
 import Sidebar from './SideBar'
 import WelcomeMessage from './WelcomeMessage'
+import { Product } from '../data/types'
 
 const ProductPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -21,6 +21,8 @@ const ProductPage: React.FC = () => {
   const [mode, setMode] = useState<'browse' | 'login' | 'register' | 'checkout'>('browse')
   const [cartItems, setCartItems] = useState<Product[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const [searchTerm, setSearchTerm] = useState<string>('')
 
   const isLoggedIn = useSelector((state: RootState) => state.isLoggedUser.isLoggedIn)
   const products = useSelector((state: RootState) => state.products.list)
@@ -36,13 +38,14 @@ const ProductPage: React.FC = () => {
     if (q && q.toLowerCase() !== selectedCategory.toLowerCase()) {
       setSelectedCategory(q)
     }
-  }, [searchParams, selectedCategory])
+  }, [searchParams])
 
   const handleSelectCategory = (catName: string) => {
     setSelectedCategory(catName)
     navigate(`/catalogo?item=${encodeURIComponent(catName)}`, { replace: true })
     setMode('browse')
     setSidebarOpen(false)
+    setSearchTerm('')
   }
   const handleLoginClick = () => { setMode('login'); setSidebarOpen(false) }
   const handleRegisterClick = () => { setMode('register'); setSidebarOpen(false) }
@@ -61,9 +64,16 @@ const ProductPage: React.FC = () => {
   const handlePaymentSuccess = () => { setCartItems([]); setMode('browse') }
   const onLogoutClick = () => dispatch(logoutUser())
 
-  const itemsToShow = selectedCategory
-    ? products.filter(item => item.category?.name.toLowerCase() === selectedCategory.toLowerCase())
+  const itemsByCategory = selectedCategory
+    ? products.filter(item =>
+      item.category?.name.toLowerCase() === selectedCategory.toLowerCase()
+    )
     : []
+
+  const itemsToShow = itemsByCategory.filter(item => {
+    const text = `${item.name} ${item.title ?? ''} ${item.description ?? ''}`.toLowerCase()
+    return text.includes(searchTerm.trim().toLowerCase())
+  })
 
   const renderMainContent = () => {
     if (mode === 'login') return <LoginForm onSuccess={handleAuthSuccess} />
@@ -78,7 +88,6 @@ const ProductPage: React.FC = () => {
       )
     }
 
-    // Modo browse
     if (!selectedCategory) {
       return (
         <WelcomeMessage
@@ -88,7 +97,7 @@ const ProductPage: React.FC = () => {
       )
     }
 
-    if (itemsToShow.length === 0) {
+    if (itemsByCategory.length === 0) {
       return (
         <p className="text-center text-secondary-muted italic">
           {products.length === 0 ? 'Cargando productos...' : 'No hay productos en esta categoría.'}
@@ -96,7 +105,43 @@ const ProductPage: React.FC = () => {
       )
     }
 
-    return <ProductList items={itemsToShow} isLoggedIn={isLoggedIn} onAddToCart={handleAddToCart} />
+    return (
+      <>
+        {/* Barra de búsqueda */}
+        <div className="mb-4">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            placeholder="Buscar productos..."
+            className="
+                        w-full 
+                        border border-secondary-dark 
+                        rounded-md 
+                        mt-2
+                        px-4 py-2 
+                        focus:outline-none 
+                        focus:ring-2 
+                        focus:ring-primary 
+                        focus:ring-opacity-50
+                      "
+          />
+        </div>
+
+        {/* Lista de productos filtrados */}
+        {itemsToShow.length > 0 ? (
+          <ProductList
+            items={itemsToShow}
+            isLoggedIn={isLoggedIn}
+            onAddToCart={handleAddToCart}
+          />
+        ) : (
+          <p className="text-center text-secondary-muted italic">
+            No se encontraron productos que coincidan con “{searchTerm}”
+          </p>
+        )}
+      </>
+    )
   }
 
   return (
