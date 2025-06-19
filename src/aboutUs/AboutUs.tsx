@@ -52,7 +52,7 @@ const QuienesSomos: React.FC = () => {
             <li>Importamos <b>Flores y plantas artificiales de alta calidad, papeles y artículos de regalaría, floreros, macetas roto moldeadas y artículos de decoración en cerámica</b>.</li>
           </ul>
 
-          <h2 className="font-heading text-2xl md:text-3xl text-secondary-darkest mb-4">
+          {/* <h2 className="font-heading text-2xl md:text-3xl text-secondary-darkest mb-4">
             Calidad y compromiso familiar
           </h2>
           <p className="font-body text-secondary-darkest text-base md:text-lg mb-4">
@@ -60,7 +60,7 @@ const QuienesSomos: React.FC = () => {
           </p>
           <p className="font-body text-secondary-darkest text-base md:text-lg mb-6">
             Te invitamos a explorar nuestro catálogo y descubrir todo lo que podemos ofrecerte.
-          </p>
+          </p> */}
 
 
 

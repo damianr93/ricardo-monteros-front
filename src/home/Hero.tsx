@@ -27,14 +27,6 @@ const slides: Slide[] = [
     title: 'Llegamos a todos los puntos del país',
     subtitle: 'Envíos seguros y rápidos para que recibas tus pedidos en perfectas condiciones.'
   },
-  // {
-  //   id: 3,
-  //   webp: '/img/slide-2.webp',
-  //   jpg: '/img/slide-2.webp',
-  //   pix: '/img/slide-2.webp',
-  //   title: 'Productos que impulsan tu negocio',
-  //   subtitle: ''
-  // },
   {
     id: 3,
     webp: '/img/slide-prueba.webp',
@@ -49,8 +41,16 @@ const slides: Slide[] = [
     jpg: '/img/slide-3.jpeg',
     pix: '/img/slide-3.jpeg',
     title: 'Atención personalizada en cada pedido',
-    subtitle: 'Te acompañamos desde la selección hasta la entrega de tus decoraciones.'
+    subtitle: ''
   },
+  {
+    id: 5,
+    webp: '/img/slide-4.jpeg',
+    jpg: '/img/slide-4.jpeg',
+    pix: '/img/slide-4.jpeg',
+    title: 'SOMOS EXPORTADORES',
+    subtitle: 'Contamos con una amplia variedad de flores y artículos decorativos'
+  }
 ]
 
 const Hero: React.FC = () => {
