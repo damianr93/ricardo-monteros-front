@@ -23,6 +23,7 @@ const ProductPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const [searchTerm, setSearchTerm] = useState<string>('')
+  const [searchBy, setSearchBy] = useState<'name' | 'codigo'>('name')
 
   const isLoggedIn = useSelector((state: RootState) => state.isLoggedUser.isLoggedIn)
   const products = useSelector((state: RootState) => state.products.list)
@@ -38,7 +39,7 @@ const ProductPage: React.FC = () => {
     if (q && q.toLowerCase() !== selectedCategory.toLowerCase()) {
       setSelectedCategory(q)
     }
-  }, [searchParams])
+  }, [searchParams, selectedCategory])
 
   const handleSelectCategory = (catName: string) => {
     setSelectedCategory(catName)
@@ -66,13 +67,21 @@ const ProductPage: React.FC = () => {
 
   const itemsByCategory = selectedCategory
     ? products.filter(item =>
-      item.category?.name.toLowerCase() === selectedCategory.toLowerCase()
-    )
+        item.category?.name.toLowerCase() === selectedCategory.toLowerCase()
+      )
     : []
 
   const itemsToShow = itemsByCategory.filter(item => {
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return true
+
+    if (searchBy === 'codigo') {
+      return item.codigo !== undefined && item.codigo !== null
+        ? String(item.codigo).toLowerCase().includes(term)
+        : false
+    }
     const text = `${item.name} ${item.title ?? ''} ${item.description ?? ''}`.toLowerCase()
-    return text.includes(searchTerm.trim().toLowerCase())
+    return text.includes(term)
   })
 
   const renderMainContent = () => {
@@ -107,24 +116,40 @@ const ProductPage: React.FC = () => {
 
     return (
       <>
-        {/* Barra de búsqueda */}
-        <div className="mb-4">
+        {/* Barra de búsqueda con desplegable */}
+        <div className="mb-4 mt-5 flex items-center space-x-2">
+          <select
+            value={searchBy}
+            onChange={e => setSearchBy(e.target.value as 'name' | 'codigo')}
+            className="
+              min-w-[120px]          
+              border border-secondary-dark 
+              rounded-md 
+              px-3 py-2             
+              focus:outline-none 
+              focus:ring-2 
+              focus:ring-primary 
+              focus:ring-opacity-50
+            "
+          >
+            <option value="name">Nombre</option>
+            <option value="codigo">Código</option>
+          </select>
           <input
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            placeholder="Buscar productos..."
+            placeholder={searchBy === 'codigo' ? 'Buscar por código...' : 'Buscar productos...'}
             className="
-                        w-full 
-                        border border-secondary-dark 
-                        rounded-md 
-                        mt-2
-                        px-4 py-2 
-                        focus:outline-none 
-                        focus:ring-2 
-                        focus:ring-primary 
-                        focus:ring-opacity-50
-                      "
+              flex-1
+              border border-secondary-dark 
+              rounded-md 
+              px-4 py-2 
+              focus:outline-none 
+              focus:ring-2 
+              focus:ring-primary 
+              focus:ring-opacity-50
+            "
           />
         </div>
 

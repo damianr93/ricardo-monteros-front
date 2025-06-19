@@ -29,6 +29,7 @@ export interface Product {
   available: boolean;
   price: number;
   title?: string;
+  codigo?: number | string;
   description?: string;
   user: string;
   category: Category;
