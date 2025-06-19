@@ -13,6 +13,7 @@ const columns: Column[] = [
   { field: 'title', headerName: 'Título Producto', align: 'left' },
   { field: 'description', headerName: 'Descripción', align: 'left' },
   { field: 'category.name', headerName: 'Categoría', align: 'left' },
+  { field: 'codigo', headerName: 'codigo', align: 'left' },
   { field: 'price', headerName: 'Precio', align: 'left' },
   { field: 'available', headerName: 'Activa', align: 'left' },
 ]
