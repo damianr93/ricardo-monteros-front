@@ -13,7 +13,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
   const [showModal, setShowModal] = useState(false)
   const [currentImage, setCurrentImage] = useState(0)
 
-  // Estados para el zoom
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
@@ -44,88 +43,83 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
     e.currentTarget.src = DEFAULT_IMG
   }
 
-  // Manejar zoom con rueda del mouse
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    const container = e.currentTarget as HTMLElement
-    const rect = container.getBoundingClientRect()
-
-    // Calcular posición del mouse relativa al centro del contenedor
-    const mouseX = e.clientX - rect.left - rect.width / 2
-    const mouseY = e.clientY - rect.top - rect.height / 2
-
-    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1
-    const newScale = Math.min(Math.max(scale * zoomFactor, 0.5), 5)
-
-    // Ajustar posición para que el zoom se centre en el cursor
-    const scaleChange = newScale / scale
-    const newX = mouseX - (mouseX - position.x) * scaleChange
-    const newY = mouseY - (mouseY - position.y) * scaleChange
-
-    setScale(newScale)
-    setPosition({ x: newX, y: newY })
-  }, [scale, position])
-
-  // Iniciar arrastre
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (scale > 1) {
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
       e.preventDefault()
-      setIsDragging(true)
-      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y })
-    }
-  }, [scale, position])
+      e.stopPropagation()
 
-  // Arrastrar
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || scale <= 1) return
+      const container = e.currentTarget as HTMLElement
+      const rect = container.getBoundingClientRect()
 
-    e.preventDefault()
-    setPosition({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
-    })
-  }, [isDragging, scale, dragStart])
+      const mouseX = e.clientX - rect.left - rect.width / 2
+      const mouseY = e.clientY - rect.top - rect.height / 2
 
-  // Terminar arrastre
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1
+      const newScale = Math.min(Math.max(scale * zoomFactor, 0.5), 5)
+
+      const scaleChange = newScale / scale
+      const newX = mouseX - (mouseX - position.x) * scaleChange
+      const newY = mouseY - (mouseY - position.y) * scaleChange
+
+      setScale(newScale)
+      setPosition({ x: newX, y: newY })
+    },
+    [scale, position]
+  )
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (scale > 1) {
+        e.preventDefault()
+        setIsDragging(true)
+        setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y })
+      }
+    },
+    [scale, position]
+  )
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging || scale <= 1) return
+
+      e.preventDefault()
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      })
+    },
+    [isDragging, scale, dragStart]
+  )
+
   const handleMouseUp = useCallback(() => {
     setIsDragging(false)
   }, [])
 
-  // Doble click para resetear zoom
-  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (scale > 1) {
-      resetZoom()
-    } else {
-      setScale(2)
-      setPosition({ x: 0, y: 0 })
-    }
-  }, [scale])
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (scale > 1) {
+        resetZoom()
+      } else {
+        setScale(2)
+        setPosition({ x: 0, y: 0 })
+      }
+    },
+    [scale]
+  )
 
-  // Cerrar modal y resetear zoom
   const closeModal = () => {
     setShowModal(false)
     resetZoom()
   }
 
-  // Prevenir scroll del body cuando el modal está abierto
   React.useEffect(() => {
     if (showModal) {
-      // Bloquear scroll del body
       document.body.style.overflow = 'hidden'
 
-      // Funciones separadas para cada tipo de evento
-      const preventWheelScroll = (e: WheelEvent) => {
-        e.preventDefault()
-      }
+      const preventWheelScroll = (e: WheelEvent) => e.preventDefault()
+      const preventTouchScroll = (e: TouchEvent) => e.preventDefault()
 
-      const preventTouchScroll = (e: TouchEvent) => {
-        e.preventDefault()
-      }
-
-      // Agregar los listeners al documento con capture: true
       document.addEventListener('wheel', preventWheelScroll, { passive: false, capture: true })
       document.addEventListener('touchmove', preventTouchScroll, { passive: false })
 
@@ -140,16 +134,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
   return (
     <>
       <div
-        className="bg-primary-DEFAULT rounded-lg overflow-hidden shadow-lg cursor-pointer relative group"
+        className="bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer relative group"
         onClick={() => setShowModal(true)}
       >
         {/* Imagen principal con navegación */}
-        <div className="relative w-full h-48 overflow-hidden">
+        <div className="relative w-full h-48 bg-white p-2 overflow-hidden flex items-center justify-center">
           <img
             src={`${import.meta.env.VITE_BASE_AWS_URL}${images[currentImage]}`}
             alt={item.title}
             onError={handleImgError}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-95"
+            className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-95"
           />
           {images.length > 1 && (
             <>
@@ -199,7 +193,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 overflow-hidden"
           onClick={closeModal}
           style={{ touchAction: 'none' }}
-          onWheel={(e) => e.stopPropagation()}
+          onWheel={e => e.stopPropagation()}
         >
           <div
             className="relative w-full h-full flex items-center justify-center"
