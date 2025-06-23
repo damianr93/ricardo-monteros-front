@@ -134,7 +134,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
   return (
     <>
       <div
-        className="bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer relative group"
+        className="bg-primary-DEFAULT rounded-lg overflow-hidden shadow-lg cursor-pointer relative group"
         onClick={() => setShowModal(true)}
       >
         {/* Imagen principal con navegación */}
