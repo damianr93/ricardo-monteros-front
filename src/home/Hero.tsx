@@ -48,7 +48,7 @@ const slides: Slide[] = [
     webp: '/img/slide-4.jpeg',
     jpg: '/img/slide-4.jpeg',
     pix: '/img/slide-4.jpeg',
-    title: 'SOMOS EXPORTADORES',
+    title: 'SOMOS IMPORTADORES',
     subtitle: 'Contamos con una amplia variedad de flores y artículos decorativos'
   }
 ]
