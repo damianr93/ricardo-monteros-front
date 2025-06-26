@@ -39,7 +39,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
                 const errorData = await response.json()
                 throw new Error(errorData.message || 'Error al registrarse')
             }
-            toast.info('Registro exitoso, puede logearse ahora', { position: 'top-left' })
+            toast.info('Registro exitoso, espere un correo electronico con la aprobación para poder logearse', { position: 'top-left' })
             onSuccess()
         } catch (err: any) {
             toast.error('Algo salió mal, intente nuevamente', { position: 'top-left' })
