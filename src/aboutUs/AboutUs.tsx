@@ -32,7 +32,7 @@ const QuienesSomos: React.FC = () => {
           {/* Imagen de la familia - centrada */}
           <div className="flex justify-center my-12">
             <img
-              src="/img/familia-empresa.jpg"
+              src="/img/aboutUs.jpeg"
               alt="Familia Ricardo Montero - Dueños de la empresa"
               className="rounded-lg shadow-lg max-w-md w-full h-auto"
             />
