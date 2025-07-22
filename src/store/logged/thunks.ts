@@ -1,7 +1,57 @@
 import { AppThunk } from "../store";
 import { toast } from "react-toastify";
 import { fetchProducts } from "../products/thunks";
-import { setUserDisloged, setUserError, setUserLoading, setUserLogged } from "./userLogged";
+import {
+  setUserDisloged,
+  setUserError,
+  setUserLoading,
+  setUserLogged,
+} from "./userLogged";
+
+const TOKEN_KEY = "access_token";
+
+const saveToken = (token: string) => {
+  try {
+    localStorage.setItem(TOKEN_KEY, token);
+  } catch (error) {
+    console.warn("Error saving token to localStorage:", error);
+  }
+};
+
+const getToken = (): string | null => {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch (error) {
+    console.warn("Error reading token from localStorage:", error);
+    return null;
+  }
+};
+
+const removeToken = () => {
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch (error) {
+    console.warn("Error removing token from localStorage:", error);
+  }
+};
+
+const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const token = getToken();
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...((options.headers as Record<string, string>) || {}),
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return fetch(url, {
+    ...options,
+    headers,
+  });
+};
 
 export const loginUser =
   (dataToLogin: { email: string; password: string }): AppThunk =>
@@ -13,19 +63,24 @@ export const loginUser =
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
           body: JSON.stringify(dataToLogin),
         }
       );
 
       const data = await response.json();
 
-      if (response.ok && data.user) {
+      if (response.ok && data.user && data.token) {
+        saveToken(data.token);
+
         dispatch(setUserLogged(data.user));
-        dispatch(fetchProducts());   
+        dispatch(fetchProducts());
+
+        toast.success("¡Bienvenido!", {
+          position: "top-right",
+        });
       } else {
-        dispatch(setUserError("Credenciales inválidas"));
-        toast.error("Algo salió mal, intente nuevamente", {
+        dispatch(setUserError(data.error || "Credenciales inválidas"));
+        toast.error(data.error || "Credenciales inválidas", {
           position: "top-left",
         });
       }
@@ -34,7 +89,7 @@ export const loginUser =
         setUserError(error.message ?? "Error de red, intente nuevamente")
       );
       console.error("Failed to login:", error);
-      toast.error("Algo salió mal, intente nuevamente", {
+      toast.error("Error de conexión, intente nuevamente", {
         position: "top-left",
       });
     }
@@ -43,36 +98,66 @@ export const loginUser =
 export const fetchMe = (): AppThunk => async (dispatch) => {
   dispatch(setUserLoading());
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+    const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/auth/me`, {
       method: "PUT",
-      credentials: "include",
     });
-    if (!res.ok) throw new Error("No autenticado");
-    const user = await res.json();
-    dispatch(setUserLogged(user));
-  } catch {
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        removeToken();
+      }
+      throw new Error("No autenticado");
+    }
+
+    const data = await res.json();
+    dispatch(setUserLogged(data.user));
+  } catch (error) {
+    console.warn("fetchMe error:", error);
+    removeToken();
     dispatch(setUserDisloged());
-    // no toast aquí, es silencioso
   }
 };
 
 export const logoutUser = (): AppThunk => async (dispatch) => {
   dispatch(setUserLoading());
   try {
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/auth/logout`,
       {
         method: "POST",
-        credentials: "include",
       }
     );
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || "No se pudo cerrar sesión");
-    }
+
+    removeToken();
     dispatch(setUserDisloged());
+
+    if (!res.ok) {
+      console.warn("Logout response not ok, but continuing...");
+    }
+
+    toast.success("Sesión cerrada correctamente", {
+      position: "top-right",
+    });
   } catch (error: any) {
-    dispatch(setUserError(error.message ?? "Error al cerrar sesión"));
     console.error("Failed to logout:", error);
+    removeToken();
+    dispatch(setUserDisloged());
+    toast.success("Sesión cerrada", {
+      position: "top-right",
+    });
   }
 };
+
+export const initializeAuth = (): AppThunk => async (dispatch) => {
+  const token = getToken();
+  if (token) {
+    dispatch(fetchMe());
+  } else {
+    dispatch(setUserDisloged());
+  }
+};
+
+export const useAuthFetch = () => {
+  return fetchWithAuth;
+};
+export { fetchWithAuth };
