@@ -6,10 +6,21 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
+  // Campos obligatorios
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Campos opcionales
+  const [razonSocial, setRazonSocial] = useState("");
+  const [CUIT, setCUIT] = useState("");
+  const [caracteristica, setCaracteristica] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [localidad, setLocalidad] = useState("");
+  const [provincia, setProvincia] = useState("");
+  const [codigoPostal, setCodigoPostal] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,13 +43,46 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       return;
     }
 
+    // Validaciones opcionales
+    if (CUIT && !/^\d{11}$/.test(CUIT)) {
+      toast.error("El CUIT debe tener 11 dígitos", {
+        position: "top-left",
+      });
+      return;
+    }
+
+    if (
+      codigoPostal &&
+      (isNaN(Number(codigoPostal)) || Number(codigoPostal) <= 0)
+    ) {
+      toast.error("El código postal debe ser un número válido", {
+        position: "top-left",
+      });
+      return;
+    }
+
+    // Construir objeto de datos
+    const userData: any = { name, email, password };
+
+    // Agregar campos opcionales si tienen valor
+    if (razonSocial.trim()) userData.razonSocial = razonSocial.trim();
+    if (CUIT.trim()) userData.CUIT = CUIT.trim();
+    if (caracteristica.trim() && telefono.trim()) {
+      userData.phone = `${caracteristica.trim()}-${telefono.trim()}`;
+    }
+    if (direccion.trim()) userData.direccion = direccion.trim();
+    if (localidad.trim()) userData.localidad = localidad.trim();
+    if (provincia.trim()) userData.provincia = provincia.trim();
+    if (codigoPostal.trim())
+      userData.codigoPostal = Number(codigoPostal.trim());
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
+          body: JSON.stringify(userData),
         }
       );
       if (!response.ok) {
@@ -67,8 +111,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       </h2>
 
       <div className="space-y-4">
+        {/* Campos obligatorios */}
         <div>
-          <label className="block text-secondary-darkest mb-2">Nombre</label>
+          <label className="block text-secondary-darkest mb-2">Nombre *</label>
           <input
             type="text"
             value={name}
@@ -78,7 +123,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
           />
         </div>
         <div>
-          <label className="block text-secondary-darkest mb-2">Email</label>
+          <label className="block text-secondary-darkest mb-2">Email *</label>
           <input
             type="email"
             value={email}
@@ -89,7 +134,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
         </div>
         <div>
           <label className="block text-secondary-darkest mb-2">
-            Contraseña
+            Contraseña *
           </label>
           <input
             type="password"
@@ -101,7 +146,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
         </div>
         <div>
           <label className="block text-secondary-darkest mb-2">
-            Confirmar Contraseña
+            Confirmar Contraseña *
           </label>
           <input
             type="password"
@@ -115,6 +160,104 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
                 ? "border-green-500 bg-green-50 focus:ring-green-500"
                 : "border-red-500 bg-red-50 focus:ring-red-500"
             }`}
+          />
+        </div>
+
+        {/* Separador */}
+        <div className="border-t border-secondary-dark pt-4">
+          <p className="text-secondary-darkest text-sm mb-4">
+            Información adicional (opcional)
+          </p>
+        </div>
+
+        {/* Campos opcionales */}
+        <div>
+          <label className="block text-secondary-darkest mb-2">
+            Razón Social
+          </label>
+          <input
+            type="text"
+            value={razonSocial}
+            onChange={(e) => setRazonSocial(e.target.value)}
+            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label className="block text-secondary-darkest mb-2">CUIT</label>
+          <input
+            type="text"
+            value={CUIT}
+            onChange={(e) => setCUIT(e.target.value.replace(/\D/g, ""))}
+            maxLength={11}
+            placeholder="11 dígitos"
+            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label className="block text-secondary-darkest mb-2">Teléfono</label>
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={caracteristica}
+              onChange={(e) =>
+                setCaracteristica(e.target.value.replace(/\D/g, ""))
+              }
+              placeholder="Característ."
+              maxLength={4}
+              className="w-1/3 border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <input
+              type="text"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value.replace(/\D/g, ""))}
+              placeholder="Número"
+              maxLength={8}
+              className="w-2/3 border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-secondary-darkest mb-2">Dirección</label>
+          <input
+            type="text"
+            value={direccion}
+            onChange={(e) => setDireccion(e.target.value)}
+            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label className="block text-secondary-darkest mb-2">Localidad</label>
+          <input
+            type="text"
+            value={localidad}
+            onChange={(e) => setLocalidad(e.target.value)}
+            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label className="block text-secondary-darkest mb-2">Provincia</label>
+          <input
+            type="text"
+            value={provincia}
+            onChange={(e) => setProvincia(e.target.value)}
+            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label className="block text-secondary-darkest mb-2">
+            Código Postal
+          </label>
+          <input
+            type="text"
+            value={codigoPostal}
+            onChange={(e) => setCodigoPostal(e.target.value.replace(/\D/g, ""))}
+            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
       </div>
