@@ -47,6 +47,7 @@ export const createProduct =
         }
       }
 
+      // Ahora fetchWithAuth maneja FormData correctamente
       const res = await fetchWithAuth(
         `${import.meta.env.VITE_API_URL}/products`,
         {
@@ -101,6 +102,7 @@ export const updateProduct =
           formData.append("images", file);
         });
 
+        // Ahora fetchWithAuth maneja FormData correctamente
         const res = await fetchWithAuth(
           `${import.meta.env.VITE_API_URL}/products/${id}`,
           {
@@ -113,6 +115,7 @@ export const updateProduct =
         const data: Product = await res.json();
         dispatch(prodUpdateSuccess(data));
       } else {
+        // Para JSON, sí especificar Content-Type
         const res = await fetchWithAuth(
           `${import.meta.env.VITE_API_URL}/products/${id}`,
           {

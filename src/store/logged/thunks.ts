@@ -35,13 +35,18 @@ const removeToken = () => {
   }
 };
 
+// ✅ FUNCIÓN CORREGIDA: Solo añadir Content-Type si NO es FormData
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   const token = getToken();
 
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
     ...((options.headers as Record<string, string>) || {}),
   };
+
+  // Solo añadir Content-Type si NO es FormData
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
