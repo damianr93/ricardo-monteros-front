@@ -165,6 +165,52 @@ export const initializeAuth = (): AppThunk => async (dispatch) => {
   }
 };
 
+export const forgotPassword = (email: string): AppThunk => async (dispatch) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/forgot-password`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error al enviar la solicitud");
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.message || "Error al enviar la solicitud");
+  }
+};
+
+export const resetPassword = (data: { token: string; newPassword: string }): AppThunk => async (dispatch) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/reset-password`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    );
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseData.error || "Error al actualizar la contraseña");
+    }
+
+    return responseData;
+  } catch (error: any) {
+    throw new Error(error.message || "Error al actualizar la contraseña");
+  }
+};
+
 export const useAuthFetch = () => {
   return fetchWithAuth;
 };

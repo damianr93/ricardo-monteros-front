@@ -5,6 +5,7 @@ import ProductPage from "../product/ProductPage"
 import Contacto from "../contact/Contact"
 import CPanel from "../cpanel/cpanel"
 import SimpleProtectedRoute from "../components/SimpleProtectedRoute"
+import ResetPasswordPage from "../pages/ResetPasswordPage"
 
 export const AppRouter = () => {
     return (
@@ -14,6 +15,7 @@ export const AppRouter = () => {
                 <Route path="/nosotros" element={<QuienesSomos />} />
                 <Route path="/contacto" element={<Contacto />} />
                 <Route path="/catalogo" element={<ProductPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route 
                     path="/catalogo/cpanel" 
                     element={

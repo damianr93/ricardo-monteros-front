@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../store/logged/thunks";
 import { AppDispatch, RootState } from "../store/store";
 import Loading from "../components/loading";
+import ForgotPasswordForm from "../components/ForgotPasswordForm";
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -12,6 +13,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
   const status = useSelector((state: RootState) => state.userLogged.status);
@@ -33,6 +35,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       <div className="w-full h-full min-h-[300px] flex items-center justify-center">
         <Loading />
       </div>
+    );
+  }
+
+  if (showForgotPassword) {
+    return (
+      <ForgotPasswordForm
+        onBack={() => setShowForgotPassword(false)}
+        onSuccess={() => setShowForgotPassword(false)}
+      />
     );
   }
 
@@ -111,13 +122,24 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           </div>
         </div>
       </div>
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full bg-primary text-secondary-lightest py-3 rounded-md hover:bg-primary-dark transition disabled:opacity-50"
-      >
-        Entrar
-      </button>
+      
+      <div className="space-y-3">
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full bg-primary text-secondary-lightest py-3 rounded-md hover:bg-primary-dark transition disabled:opacity-50"
+        >
+          Entrar
+        </button>
+        
+        <button
+          type="button"
+          onClick={() => setShowForgotPassword(true)}
+          className="w-full text-primary hover:text-primary-dark transition text-sm underline"
+        >
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
     </form>
   );
 };
