@@ -9,6 +9,7 @@ import {
   prodUpdateSuccess,
   prodRemoveSuccess,
 } from "./slice";
+import { toast } from "react-toastify";
 
 export const fetchProducts = (): AppThunk => async (dispatch) => {
   dispatch(prodFetchStart());
@@ -154,3 +155,46 @@ export const deleteProduct =
       dispatch(prodFetchFailure(err.message));
     }
   };
+
+export const importProductsFromExcel = (products: any[]): AppThunk => async (dispatch) => {
+  dispatch(prodFetchStart());
+  try {
+    const res = await fetchWithAuth(
+      `${import.meta.env.VITE_API_URL}/products/import`,
+      {
+        method: "POST",
+        body: JSON.stringify({ products }),
+      }
+    );
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Error al importar productos");
+    }
+
+    const data = await res.json();
+    
+    // Recargar la lista de productos
+    dispatch(fetchProducts());
+    
+    let message = '';
+    if (data.updated > 0 && data.notFound > 0) {
+      message = `Se actualizaron ${data.updated} productos. ${data.notFound} productos no se encontraron.`;
+    } else if (data.updated > 0) {
+      message = `Se actualizaron ${data.updated} productos correctamente`;
+    } else if (data.notFound > 0) {
+      message = `No se encontraron productos para actualizar (${data.notFound} productos no encontrados)`;
+    } else {
+      message = 'No se realizaron cambios en los productos';
+    }
+    
+    toast.success(message, {
+      position: "top-right",
+    });
+  } catch (err: any) {
+    dispatch(prodFetchFailure(err.message));
+    toast.error(err.message || "Error al importar productos", {
+      position: "top-right",
+    });
+  }
+};

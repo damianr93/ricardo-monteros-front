@@ -1,9 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserLogged } from "../../interfaces/users";
+import { User } from "../../interfaces/users";
 
 interface UserLoggedState {
   isLoggedIn: boolean;
-  user?: UserLogged;
+  user?: User;
+  isAdmin?: boolean;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -11,6 +12,7 @@ interface UserLoggedState {
 const initialState: UserLoggedState = {
   isLoggedIn: false,
   user: undefined,
+  isAdmin: false,
   status: "idle",
   error: null,
 };
@@ -23,15 +25,17 @@ export const userLogged = createSlice({
       state.status = "loading";
       state.error = null;
     },
-    setUserLogged(state, action: PayloadAction<UserLogged>) {
+    setUserLogged(state, action: PayloadAction<{ user: User; isAdmin?: boolean }>) {
       state.isLoggedIn = true;
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.isAdmin = action.payload.isAdmin || false;
       state.status = "succeeded";
       state.error = null;
     },
     setUserDisloged(state) {
       state.isLoggedIn = false;
       state.user = undefined;
+      state.isAdmin = false;
       state.status = "idle";
       state.error = null;
     },

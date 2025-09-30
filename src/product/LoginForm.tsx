@@ -14,7 +14,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
-  const status = useSelector((state: RootState) => state.isLoggedUser.status);
+  const status = useSelector((state: RootState) => state.userLogged.status);
   const isLoading = status === "loading";
 
   useEffect(() => {

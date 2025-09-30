@@ -59,7 +59,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   isDeletingId = null,
   isLoading = false,
 }) => {
-  const [tableData, setTableData] = useState(data)
+  const [tableData, setTableData] = useState(Array.isArray(data) ? data : [])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(pagination?.rowsPerPage || 7)
   const [searchColumn, setSearchColumn] = useState("")
@@ -67,12 +67,40 @@ const CustomTable: React.FC<CustomTableProps> = ({
   const [isModified, setIsModified] = useState(false)
 
   useEffect(() => {
-    setTableData(data)
+    setTableData(Array.isArray(data) ? data : [])
   }, [data])
 
+  const formatCell = (value: any, field: string) => {
+    if (value === undefined || value === null) return "-"
+    if (typeof value === "boolean") return value ? "Si" : "No"
+    
+    // Formateo especial para campos específicos
+    if (field === 'approvalStatus') {
+      switch (value) {
+        case 'APPROVED':
+          return 'Aprobado'
+        case 'PENDING':
+          return 'Pendiente'
+        case 'REJECTED':
+          return 'Rechazado'
+        default:
+          return value
+      }
+    }
+    
+    if (field === 'role' && Array.isArray(value)) {
+      return value.join(', ')
+    }
+    
+    return String(value)
+  }
+
   const filteredData = useMemo(() => {
-    if (!searchColumn || !searchTerm) return tableData
-    return tableData.filter((row) => {
+    // Asegurar que tableData sea siempre un array
+    const dataArray = Array.isArray(tableData) ? tableData : []
+    
+    if (!searchColumn || !searchTerm) return dataArray
+    return dataArray.filter((row) => {
       let value = ""
       if (searchColumn.includes(".")) {
         const [parent, child] = searchColumn.split(".")
@@ -80,8 +108,13 @@ const CustomTable: React.FC<CustomTableProps> = ({
       } else {
         value = row[searchColumn] !== undefined ? row[searchColumn] : ""
       }
-      if (typeof value === "boolean") value = value ? "Si" : "No"
-      return String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      
+      // Buscar tanto en el valor original como en el formateado
+      const originalValue = String(value).toLowerCase()
+      const formattedValue = formatCell(value, searchColumn).toLowerCase()
+      const searchTermLower = searchTerm.toLowerCase()
+      
+      return originalValue.includes(searchTermLower) || formattedValue.includes(searchTermLower)
     })
   }, [searchColumn, searchTerm, tableData])
 
@@ -98,14 +131,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   }
 
   const handleConfirmChanges = () => {
-    console.log("Nuevos cambios:", tableData)
     setIsModified(false)
-  }
-
-  const formatCell = (value: any) => {
-    if (value === undefined || value === null) return "-"
-    if (typeof value === "boolean") return value ? "Si" : "No"
-    return String(value)
   }
 
   const isProcessing = isLoading || isDeletingId !== null
@@ -176,7 +202,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                       : row[col.field]
                     return (
                       <TableCell key={col.field} align={col.align || 'left'}>
-                        {formatCell(val)}
+                        {formatCell(val, col.field)}
                       </TableCell>
                     )
                   })}

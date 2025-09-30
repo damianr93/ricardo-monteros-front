@@ -25,7 +25,7 @@ const ProductPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [searchBy, setSearchBy] = useState<'name' | 'codigo'>('name')
 
-  const isLoggedIn = useSelector((state: RootState) => state.isLoggedUser.isLoggedIn)
+  const isLoggedIn = useSelector((state: RootState) => state.userLogged.isLoggedIn)
   const products = useSelector((state: RootState) => state.products.list)
   const dispatch = useDispatch<AppDispatch>()
 

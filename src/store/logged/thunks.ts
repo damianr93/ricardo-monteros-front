@@ -77,7 +77,8 @@ export const loginUser =
       if (response.ok && data.user && data.token) {
         saveToken(data.token);
 
-        dispatch(setUserLogged(data.user));
+        const isAdmin = data.user.role && data.user.role.includes('ADMIN_ROLE');
+        dispatch(setUserLogged({ user: data.user, isAdmin }));
         dispatch(fetchProducts());
 
         toast.success("¡Bienvenido!", {
@@ -103,7 +104,9 @@ export const loginUser =
 export const fetchMe = (): AppThunk => async (dispatch) => {
   dispatch(setUserLoading());
   try {
-    const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/auth/me`, {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    
+    const res = await fetchWithAuth(`${apiUrl}/auth/me`, {
       method: "PUT",
     });
 
@@ -115,7 +118,7 @@ export const fetchMe = (): AppThunk => async (dispatch) => {
     }
 
     const data = await res.json();
-    dispatch(setUserLogged(data.user));
+    dispatch(setUserLogged({ user: data.user, isAdmin: data.isAdmin }));
   } catch (error) {
     console.warn("fetchMe error:", error);
     removeToken();
