@@ -106,7 +106,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onClose }) => {
 
     // No enviar contraseña vacía al editar
     if (user && !formData.password) {
-      delete userData.password
+      delete (userData as any).password
     }
 
     onSave(userData)

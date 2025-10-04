@@ -165,7 +165,7 @@ export const initializeAuth = (): AppThunk => async (dispatch) => {
   }
 };
 
-export const forgotPassword = (email: string): AppThunk => async (dispatch) => {
+export const forgotPassword = (email: string): AppThunk => async () => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/auth/forgot-password`,
@@ -188,7 +188,7 @@ export const forgotPassword = (email: string): AppThunk => async (dispatch) => {
   }
 };
 
-export const resetPassword = (data: { token: string; newPassword: string }): AppThunk => async (dispatch) => {
+export const resetPassword = (data: { token: string; newPassword: string }): AppThunk => async () => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/auth/reset-password`,

@@ -3,6 +3,7 @@ import { FaChevronRight, FaChevronLeft } from 'react-icons/fa'
 import { useNavigate, useSearchParams } from 'react-router'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
+import ForgotPasswordForm from '../components/ForgotPasswordForm'
 import ProductList from './ProductList'
 import PaymentForm from './PaymentForm'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,7 +19,7 @@ const ProductPage: React.FC = () => {
   const navigate = useNavigate()
   const itemParam = searchParams.get('item') || ''
   const [selectedCategory, setSelectedCategory] = useState<string>(itemParam)
-  const [mode, setMode] = useState<'browse' | 'login' | 'register' | 'checkout'>('browse')
+  const [mode, setMode] = useState<'browse' | 'login' | 'register' | 'checkout' | 'forgot-password'>('browse')
   const [cartItems, setCartItems] = useState<Product[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -85,8 +86,9 @@ const ProductPage: React.FC = () => {
   })
 
   const renderMainContent = () => {
-    if (mode === 'login') return <LoginForm onSuccess={handleAuthSuccess} />
+    if (mode === 'login') return <LoginForm onSuccess={handleAuthSuccess} onForgotPassword={() => setMode('forgot-password')} />
     if (mode === 'register') return <RegisterForm onSuccess={handleAuthSuccess} />
+    if (mode === 'forgot-password') return <ForgotPasswordForm onBack={() => setMode('login')} onSuccess={() => setMode('login')} />
     if (mode === 'checkout') {
       return (
         <PaymentForm
