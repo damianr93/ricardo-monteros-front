@@ -1,5 +1,6 @@
 import { Category } from '../../data/types'
 import { AppThunk } from '../store'
+import { fetchWithAuth } from '../logged/thunks'
 import {
   fetchStart,
   fetchSuccess,
@@ -24,9 +25,8 @@ export const fetchCategories = (): AppThunk => async dispatch => {
 
 export const createCategory = (payload: { name: string; available: boolean }): AppThunk => async dispatch => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/categories`, {
+    const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/categories`, {
       method: 'POST',
-      credentials: "include",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
@@ -40,9 +40,8 @@ export const createCategory = (payload: { name: string; available: boolean }): A
 
 export const updateCategory = (id: string, payload: { name: string; available: boolean }): AppThunk => async dispatch => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/categories/${id}`, {
+    const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/categories/${id}`, {
       method: 'PATCH',
-      credentials: "include",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
@@ -56,11 +55,8 @@ export const updateCategory = (id: string, payload: { name: string; available: b
 
 export const deleteCategory = (id: string): AppThunk => async dispatch => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/categories/${id}`, 
-      { method: 'DELETE',
-        credentials: "include",
-
-      })
+    const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/categories/${id}`, 
+      { method: 'DELETE' })
     if (!res.ok) throw new Error('Error deleting category')
     dispatch(removeSuccess(id))
   } catch (err: any) {
