@@ -79,20 +79,25 @@ const ProductList: React.FC = () => {
     }
   }
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (products.length === 0) {
       toast.warning('No hay productos para exportar', {
         position: "top-right",
       })
       return
     }
-    
+
     const filename = `productos_${new Date().toISOString().split('T')[0]}.xlsx`
-    exportProductsToExcel(products, filename)
-    
-    toast.success('Productos exportados correctamente', {
-      position: "top-right",
-    })
+    try {
+      await exportProductsToExcel(products, filename)
+      toast.success('Productos exportados correctamente', {
+        position: "top-right",
+      })
+    } catch {
+      toast.error('No se pudo exportar el archivo', {
+        position: "top-right",
+      })
+    }
   }
 
   const handleImport = () => {
