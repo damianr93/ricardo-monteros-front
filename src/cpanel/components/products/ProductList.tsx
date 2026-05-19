@@ -11,18 +11,17 @@ import { exportProductsToExcel, importProductsFromExcel as importFromExcel, vali
 import { toast } from 'react-toastify'
 
 const columns: Column[] = [
-  { field: 'name', headerName: 'Nombre Producto', align: 'left' },
-  { field: 'title', headerName: 'Título Producto', align: 'left' },
-  { field: 'description', headerName: 'Descripción', align: 'left' },
-  { field: 'category.name', headerName: 'Categoría', align: 'left' },
-  { field: 'codigo', headerName: 'codigo', align: 'left' },
-  { field: 'price', headerName: 'Precio', align: 'left' },
-  { field: 'available', headerName: 'Activa', align: 'left' },
+  { field: 'name',          headerName: 'Nombre',     align: 'left'   },
+  { field: 'title',         headerName: 'Título',     align: 'left'   },
+  { field: 'category.name', headerName: 'Categoría',  align: 'left'   },
+  { field: 'codigo',        headerName: 'Código',     align: 'left'   },
+  { field: 'price',         headerName: 'Precio',     align: 'right'  },
+  { field: 'available',     headerName: 'Disponible', align: 'center' },
 ]
 
 const actions: Action[] = [
-  { name: 'editar', icon: <FaEdit />, color: 'primary', tooltip: 'Editar' },
-  { name: 'eliminar', icon: <FaTrash />, color: 'secondary', tooltip: 'Eliminar' }
+  { name: 'editar',   icon: <FaEdit />,  color: 'primary',   tooltip: 'Editar'    },
+  { name: 'eliminar', icon: <FaTrash />, color: 'secondary', tooltip: 'Eliminar'  },
 ]
 
 const ProductList: React.FC = () => {
@@ -35,29 +34,20 @@ const ProductList: React.FC = () => {
   const [isImporting, setIsImporting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    dispatch(fetchProducts())
-  }, [dispatch])
+  useEffect(() => { dispatch(fetchProducts()) }, [dispatch])
 
-  const handleAdd = () => {
-    setEditing(null)
-    setShowForm(true)
-  }
-
-  const handleSubmit = async (
-    data: Omit<Product, 'id' | 'user'>,
-    imageFiles?: File[]
-  ) => {
+  const handleSubmit = async (data: Omit<Product, 'id' | 'user'>, imageFiles?: File[]) => {
     setIsSubmitting(true)
     try {
       if (editing?.id) {
         await dispatch(updateProduct(editing.id, data, imageFiles))
       } else {
         await dispatch(createProduct(data, imageFiles))
+        dispatch(fetchProducts())
       }
       setShowForm(false)
-    } catch (err) {
-      console.error('Error al guardar el producto:', err)
+    } catch {
+      // toast shown by thunk — keep form open
     } finally {
       setIsSubmitting(false)
     }
@@ -71,8 +61,8 @@ const ProductList: React.FC = () => {
       setDeletingId(row.id)
       try {
         await dispatch(deleteProduct(row.id))
-      } catch (err) {
-        console.error('Error al eliminar el producto:', err)
+      } catch {
+        // toast shown by thunk
       } finally {
         setDeletingId(null)
       }
@@ -80,136 +70,88 @@ const ProductList: React.FC = () => {
   }
 
   const handleExport = async () => {
-    if (products.length === 0) {
-      toast.warning('No hay productos para exportar', {
-        position: "top-right",
-      })
-      return
-    }
-
-    const filename = `productos_${new Date().toISOString().split('T')[0]}.xlsx`
+    if (products.length === 0) { toast.warning('No hay productos para exportar', { position: 'top-right' }); return }
     try {
-      await exportProductsToExcel(products, filename)
-      toast.success('Productos exportados correctamente', {
-        position: "top-right",
-      })
+      await exportProductsToExcel(products, `productos_${new Date().toISOString().split('T')[0]}.xlsx`)
+      toast.success('Exportado correctamente', { position: 'top-right' })
     } catch {
-      toast.error('No se pudo exportar el archivo', {
-        position: "top-right",
-      })
+      toast.error('No se pudo exportar el archivo', { position: 'top-right' })
     }
   }
 
-  const handleImport = () => {
-    fileInputRef.current?.click()
-  }
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
     if (!file) return
-
-    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-      toast.error('Por favor selecciona un archivo Excel (.xlsx o .xls)', {
-        position: "top-right",
-      })
+    if (!file.name.match(/\.xlsx?$/)) {
+      toast.error('Selecciona un archivo Excel (.xlsx o .xls)', { position: 'top-right' })
       return
     }
-
     setIsImporting(true)
     try {
       const excelData = await importFromExcel(file)
-      
       const validation = validateExcelData(excelData)
-      
       if (!validation.valid) {
-        toast.error(`Errores en el archivo: ${validation.errors.join(', ')}`, {
-          position: "top-right",
-        })
+        toast.error(`Errores: ${validation.errors.join(', ')}`, { position: 'top-right' })
         return
       }
-
-      // Confirmar importación
-      const confirmed = window.confirm(
-        `¿Estás seguro de que quieres actualizar ${excelData.length} productos? Esto modificará los productos existentes en la base de datos.`
-      )
-      
-      if (confirmed) {
+      if (window.confirm(`¿Actualizar ${excelData.length} productos desde el archivo?`)) {
         await dispatch(importProductsFromExcel(excelData))
       }
-    } catch (error: any) {
-      toast.error(error.message || 'Error al procesar el archivo', {
-        position: "top-right",
-      })
+    } catch (err: any) {
+      toast.error(err.message || 'Error al procesar el archivo', { position: 'top-right' })
     } finally {
       setIsImporting(false)
-      // Limpiar el input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
   }
 
+  if (loading || isImporting) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <Loading />
+        {isImporting && <p className="text-secondary-darkest text-sm">Importando productos...</p>}
+      </div>
+    )
+  }
+
+  if (error) return <p className="text-red-600 p-4">{error}</p>
+
   return (
-    <div className="relative">
+    <div className="bg-white rounded-xl shadow-sm p-4">
+      {/* Toolbar */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-heading text-primary">Productos</h2>
+        <h2 className="text-lg font-heading text-primary">
+          Productos
+          <span className="ml-2 text-sm font-body text-secondary-light font-normal">({products.length})</span>
+        </h2>
         <div className="flex gap-2">
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 p-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-            disabled={loading || !!deletingId || products.length === 0}
-            title="Exportar productos a Excel"
-          >
-            <FaDownload /> Exportar
+          <button onClick={handleExport} disabled={products.length === 0}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-40 transition">
+            <FaDownload size={12} /> Exportar
           </button>
-          <button
-            onClick={handleImport}
-            className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-            disabled={loading || !!deletingId || isImporting}
-            title="Actualizar productos desde Excel"
-          >
-            <FaUpload /> Importar
+          <button onClick={() => fileInputRef.current?.click()} disabled={isImporting}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 transition">
+            <FaUpload size={12} /> Importar
           </button>
-          <button
-            onClick={handleAdd}
-            className="flex items-center gap-2 p-2 bg-primary text-secondary-lightest rounded hover:bg-primary-dark transition"
-            disabled={loading || !!deletingId}
-          >
-            <FaPlus /> Añadir
+          <button onClick={() => { setEditing(null); setShowForm(true) }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+            <FaPlus size={12} /> Añadir
           </button>
         </div>
       </div>
 
-      {/* Input oculto para seleccionar archivo */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".xlsx,.xls"
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-      />
+      <input ref={fileInputRef} type="file" accept=".xlsx,.xls" onChange={handleFileChange} className="hidden" />
 
-      {loading || isImporting ? (
-        <div className="flex flex-col justify-center items-center py-20">
-          <Loading />
-          {isImporting && (
-            <p className="mt-4 text-secondary-darkest">Importando productos...</p>
-          )}
-        </div>
-      ) : error ? (
-        <p className="text-accent-coral p-4 bg-secondary-lightest rounded">{error}</p>
-      ) : products.length === 0 ? (
-        <p className="text-center py-10 text-secondary-muted">No hay productos disponibles</p>
-      ) : (
-        <CustomTable
-          columns={columns}
-          data={products}
-          actions={actions}
-          onActionClick={handleActionClick}
-          isDeletingId={deletingId}
-          isLoading={loading || isImporting}
-        />
-      )}
+      <CustomTable
+        columns={columns}
+        data={products}
+        actions={actions}
+        onActionClick={handleActionClick}
+        pagination={{ rowsPerPage: 20, rowsPerPageOptions: [20, 50, 100] }}
+        isDeletingId={deletingId}
+        isLoading={loading || isImporting}
+        searchPlaceholder="Buscar por nombre, título, código o categoría..."
+      />
 
       {showForm && (
         <ProductForm

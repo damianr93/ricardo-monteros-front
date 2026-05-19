@@ -1,4 +1,3 @@
-// File: src/components/CustomTable.tsx
 import React, { useState, useMemo, useEffect } from "react"
 import {
   Box,
@@ -12,11 +11,11 @@ import {
   IconButton,
   TablePagination,
   Tooltip,
-  TextField,
-  MenuItem,
-  Button,
   CircularProgress,
+  InputAdornment,
+  TextField,
 } from "@mui/material"
+import SearchIcon from "@mui/icons-material/Search"
 
 export interface Column {
   field: string
@@ -35,19 +34,35 @@ export interface Action {
   tooltip: string
 }
 
-interface PaginationProps {
-  rowsPerPage?: number
-  rowsPerPageOptions?: number[]
-}
-
 interface CustomTableProps {
   columns: Column[]
   data: RowData[]
   actions?: Action[]
   onActionClick: (action: Action, row: any) => void
-  pagination?: PaginationProps
+  pagination?: { rowsPerPage?: number; rowsPerPageOptions?: number[] }
   isDeletingId?: string | null
   isLoading?: boolean
+  searchPlaceholder?: string
+  hideSearch?: boolean
+}
+
+const formatCell = (value: any, field: string): string => {
+  if (value === undefined || value === null) return "-"
+  if (typeof value === "boolean") return value ? "Sí" : "No"
+  if (field === "approvalStatus") {
+    const map: Record<string, string> = { APPROVED: "Aprobado", PENDING: "Pendiente", REJECTED: "Rechazado" }
+    return map[value] ?? value
+  }
+  if (field === "role" && Array.isArray(value)) return value.join(", ")
+  return String(value)
+}
+
+const getNestedValue = (row: RowData, field: string) => {
+  if (field.includes(".")) {
+    const [parent, child] = field.split(".")
+    return row[parent]?.[child]
+  }
+  return row[field]
 }
 
 const CustomTable: React.FC<CustomTableProps> = ({
@@ -58,191 +73,139 @@ const CustomTable: React.FC<CustomTableProps> = ({
   pagination,
   isDeletingId = null,
   isLoading = false,
+  searchPlaceholder = "Buscar...",
+  hideSearch = false,
 }) => {
-  const [tableData, setTableData] = useState(Array.isArray(data) ? data : [])
+  const [tableData, setTableData] = useState<RowData[]>(Array.isArray(data) ? data : [])
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(pagination?.rowsPerPage || 7)
-  const [searchColumn, setSearchColumn] = useState("")
+  const [rowsPerPage, setRowsPerPage] = useState(pagination?.rowsPerPage ?? 10)
   const [searchTerm, setSearchTerm] = useState("")
-  const [isModified, setIsModified] = useState(false)
 
   useEffect(() => {
     setTableData(Array.isArray(data) ? data : [])
+    setPage(0)
   }, [data])
 
-  const formatCell = (value: any, field: string) => {
-    if (value === undefined || value === null) return "-"
-    if (typeof value === "boolean") return value ? "Si" : "No"
-    
-    // Formateo especial para campos específicos
-    if (field === 'approvalStatus') {
-      switch (value) {
-        case 'APPROVED':
-          return 'Aprobado'
-        case 'PENDING':
-          return 'Pendiente'
-        case 'REJECTED':
-          return 'Rechazado'
-        default:
-          return value
-      }
-    }
-    
-    if (field === 'role' && Array.isArray(value)) {
-      return value.join(', ')
-    }
-    
-    return String(value)
-  }
-
   const filteredData = useMemo(() => {
-    // Asegurar que tableData sea siempre un array
-    const dataArray = Array.isArray(tableData) ? tableData : []
-    
-    if (!searchColumn || !searchTerm) return dataArray
-    return dataArray.filter((row) => {
-      let value = ""
-      if (searchColumn.includes(".")) {
-        const [parent, child] = searchColumn.split(".")
-        value = row[parent] && row[parent][child] !== undefined ? row[parent][child] : ""
-      } else {
-        value = row[searchColumn] !== undefined ? row[searchColumn] : ""
-      }
-      
-      // Buscar tanto en el valor original como en el formateado
-      const originalValue = String(value).toLowerCase()
-      const formattedValue = formatCell(value, searchColumn).toLowerCase()
-      const searchTermLower = searchTerm.toLowerCase()
-      
-      return originalValue.includes(searchTermLower) || formattedValue.includes(searchTermLower)
-    })
-  }, [searchColumn, searchTerm, tableData])
+    if (!searchTerm.trim()) return tableData
+    const term = searchTerm.trim().toLowerCase()
+    return tableData.filter((row) =>
+      columns.some((col) => {
+        const raw = getNestedValue(row, col.field)
+        return formatCell(raw, col.field).toLowerCase().includes(term)
+      })
+    )
+  }, [searchTerm, tableData, columns])
 
   const paginatedData = pagination
     ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : filteredData
 
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage)
-  }
-  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(e.target.value, 10));
-    setPage(0)
-  }
-
-  const handleConfirmChanges = () => {
-    setIsModified(false)
-  }
-
   const isProcessing = isLoading || isDeletingId !== null
 
   return (
     <Box>
-      {/* Búsqueda */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, p: 2, borderRadius: 2, bg: 'secondary.lightest' }}>
-        <TextField
-          select
-          label="Buscar por"
-          value={searchColumn}
-          onChange={(e) => setSearchColumn(e.target.value)}
-          sx={{ minWidth: 200 }}
-          disabled={isProcessing}
-        >
-          {columns.map(col => (
-            <MenuItem key={col.field} value={col.field}>{col.headerName}</MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          label="Valor a buscar"
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          sx={{ flexGrow: 1 }}
-          disabled={isProcessing}
-        />
-      </Box>
-      {/* Confirmar */}
-      {isModified && (
-        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end', pr: 2 }}>
-          <Button
-            variant="contained"
-            sx={{ bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}
-            onClick={handleConfirmChanges}
+      {!hideSearch && (
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder={searchPlaceholder}
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setPage(0) }}
             disabled={isProcessing}
-          >
-            Confirmar cambios
-          </Button>
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ bgcolor: "white", borderRadius: 1 }}
+          />
         </Box>
       )}
-      <TableContainer component={Paper} sx={{ maxHeight: 440, overflow: 'auto' }}>
-        <Table stickyHeader>
+
+      <TableContainer component={Paper} sx={{ maxHeight: 480, overflow: "auto", borderRadius: 2 }}>
+        <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
-              {columns.map(col => (
+              {columns.map((col) => (
                 <TableCell
                   key={col.field}
-                  align={col.align || 'center'}
-                  sx={{ fontWeight: 'bold', bgcolor: '#A81109', color: '#F9F7F2' }}
-                >{col.headerName}</TableCell>
+                  align={col.align ?? "left"}
+                  sx={{ fontWeight: 700, bgcolor: "#A81109", color: "#F9F7F2", whiteSpace: "nowrap" }}
+                >
+                  {col.headerName}
+                </TableCell>
               ))}
               {actions && (
-                <TableCell align="center" sx={{ fontWeight: 'bold', bgcolor: '#A81109', color: '#F9F7F2' }}>Acciones</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 700, bgcolor: "#A81109", color: "#F9F7F2" }}>
+                  Acciones
+                </TableCell>
               )}
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedData.map((row, idx) => {
-              const isEven = idx % 2 === 0
-              const rowBg = isEven ? '#F9F7F2' : '#FFFFFF'
-              const deleting = isDeletingId === row.id
-              return (
-                <TableRow key={idx} sx={{ bgcolor: rowBg, opacity: deleting ? 0.5 : 1 }}>
-                  {columns.map(col => {
-                    let val = col.field.includes('.')
-                      ? row[col.field.split('.')[0]]?.[col.field.split('.')[1]]
-                      : row[col.field]
-                    return (
-                      <TableCell key={col.field} align={col.align || 'left'}>
-                        {formatCell(val, col.field)}
+            {paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length + (actions ? 1 : 0)} align="center" sx={{ py: 4, color: "text.secondary" }}>
+                  {searchTerm ? `Sin resultados para "${searchTerm}"` : "Sin datos"}
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedData.map((row, idx) => {
+                const deleting = isDeletingId === row.id
+                return (
+                  <TableRow
+                    key={idx}
+                    sx={{ bgcolor: idx % 2 === 0 ? "#F9F7F2" : "#FFFFFF", opacity: deleting ? 0.5 : 1 }}
+                  >
+                    {columns.map((col) => (
+                      <TableCell key={col.field} align={col.align ?? "left"} sx={{ fontSize: "0.8rem" }}>
+                        {formatCell(getNestedValue(row, col.field), col.field)}
                       </TableCell>
-                    )
-                  })}
-                  {actions && (
-                    <TableCell align="center">
-                      {deleting ? (
-                        <CircularProgress size={24} sx={{ color: 'secondary.main' }} />
-                      ) : (
-                        actions.map((action, i) => (
-                          <Tooltip key={i} title={action.tooltip} arrow>
-                            <IconButton
-                              color={action.color || 'default'}
-                              size="small"
-                              onClick={() => onActionClick(action, row)}
-                              disabled={isProcessing}
-                              sx={{ m: 0.5 }}
-                            >
-                              {action.icon}
-                            </IconButton>
-                          </Tooltip>
-                        ))
-                      )}
-                    </TableCell>
-                  )}
-                </TableRow>
-              )
-            })}
+                    ))}
+                    {actions && (
+                      <TableCell align="center">
+                        {deleting ? (
+                          <CircularProgress size={20} sx={{ color: "secondary.main" }} />
+                        ) : (
+                          actions.map((action, i) => (
+                            <Tooltip key={i} title={action.tooltip} arrow>
+                              <IconButton
+                                color={action.color ?? "default"}
+                                size="small"
+                                onClick={() => onActionClick(action, row)}
+                                disabled={isProcessing}
+                              >
+                                {action.icon}
+                              </IconButton>
+                            </Tooltip>
+                          ))
+                        )}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                )
+              })
+            )}
           </TableBody>
         </Table>
       </TableContainer>
+
       {pagination && (
         <TablePagination
-          rowsPerPageOptions={pagination.rowsPerPageOptions || [7, 10, 25]}
+          rowsPerPageOptions={pagination.rowsPerPageOptions ?? [10, 25, 50]}
           component="div"
           count={filteredData.length}
           rowsPerPage={rowsPerPage}
           page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          onPageChange={(_, p) => setPage(p)}
+          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0) }}
           disabled={isProcessing}
+          labelRowsPerPage="Filas:"
+          labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count}`}
         />
       )}
     </Box>

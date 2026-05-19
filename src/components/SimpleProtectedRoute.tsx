@@ -1,38 +1,38 @@
 import React from 'react'
+import { Navigate } from 'react-router'
 import { useSelector } from 'react-redux'
 import { RootState } from '../store/store'
+import Loading from './loading'
 
 interface SimpleProtectedRouteProps {
   children: React.ReactNode
   requireAdmin?: boolean
 }
 
-const SimpleProtectedRoute: React.FC<SimpleProtectedRouteProps> = ({ 
-  children, 
-  requireAdmin = false 
+const SimpleProtectedRoute: React.FC<SimpleProtectedRouteProps> = ({
+  children,
+  requireAdmin = false,
 }) => {
-  const { isLoggedIn, user, isAdmin } = useSelector((state: RootState) => state.userLogged)
+  const { isLoggedIn, user, status } = useSelector((state: RootState) => state.userLogged)
 
-  if (!isLoggedIn || !user) {
+  // Auth still initializing — wait before deciding
+  if (status === 'loading' || status === 'idle') {
     return (
       <div className="flex items-center justify-center h-screen bg-secondary-lightest">
-        <div className="text-center">
-          <h2 className="text-2xl font-heading text-primary mb-4">Acceso Restringido</h2>
-          <p className="text-secondary-darkest">Debes iniciar sesión para acceder a esta página.</p>
-        </div>
+        <Loading />
       </div>
     )
   }
 
+  if (!isLoggedIn || !user) {
+    return <Navigate to="/" replace />
+  }
+
+  // Derive admin status from the role array returned by the server — not from a stored boolean
+  const isAdmin = Array.isArray(user.role) && user.role.includes('ADMIN_ROLE')
+
   if (requireAdmin && !isAdmin) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-secondary-lightest">
-        <div className="text-center">
-          <h2 className="text-2xl font-heading text-primary mb-4">Acceso Denegado</h2>
-          <p className="text-secondary-darkest">No tienes permisos de administrador para acceder a esta página.</p>
-        </div>
-      </div>
-    )
+    return <Navigate to="/" replace />
   }
 
   return <>{children}</>

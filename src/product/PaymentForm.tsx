@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Product } from "../data/types";
 import Loading from "../components/loading";
+import { toast } from "react-toastify";
 
 interface PaymentFormProps {
   items: Product[];
@@ -21,7 +22,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [phone, setPhone] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const groupItems = (items: Product[]): GroupedItem[] => {
@@ -40,29 +40,26 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
-
       const groupedItems = groupItems(items);
 
       const res = await fetch(`${import.meta.env.VITE_API_URL}/sendEmail`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          surname,
-          phone,
-          items: groupedItems, 
-          total,
-        }),
+        body: JSON.stringify({ name, surname, phone, items: groupedItems, total }),
       });
-      if (!res.ok) throw new Error("Error al enviar el pedido");
+
+      if (!res.ok) {
+        let msg = "Ocurrió un problema al enviar el pedido";
+        try { const b = await res.json(); msg = b.error || b.message || msg; } catch {}
+        throw new Error(msg);
+      }
+
       onSuccess();
     } catch (err: any) {
-      console.error(err);
-      setError("Ocurrió un problema al enviar el pedido.");
+      toast.error(err.message || "Ocurrió un problema al enviar el pedido", { position: "top-right" });
     } finally {
       setLoading(false);
     }
@@ -144,10 +141,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           />
         </div>
       </div>
-
-      {error && (
-        <p className="text-accent-coral text-sm text-center">{error}</p>
-      )}
 
       <button
         type="submit"

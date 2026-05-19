@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { FaChevronRight, FaChevronLeft } from 'react-icons/fa'
 import { useNavigate, useSearchParams } from 'react-router'
 import LoginForm from './LoginForm'
@@ -25,6 +25,8 @@ const ProductPage: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [searchBy, setSearchBy] = useState<'name' | 'codigo'>('name')
+  const [catalogPage, setCatalogPage] = useState(1)
+  const CATALOG_PAGE_SIZE = 24
 
   const isLoggedIn = useSelector((state: RootState) => state.userLogged.isLoggedIn)
   const products = useSelector((state: RootState) => state.products.list)
@@ -41,6 +43,10 @@ const ProductPage: React.FC = () => {
       setSelectedCategory(q)
     }
   }, [searchParams, selectedCategory])
+
+  useEffect(() => {
+    setCatalogPage(1)
+  }, [selectedCategory, searchTerm])
 
   const handleSelectCategory = (catName: string) => {
     setSelectedCategory(catName)
@@ -66,16 +72,17 @@ const ProductPage: React.FC = () => {
   const handlePaymentSuccess = () => { setCartItems([]); setMode('browse') }
   const onLogoutClick = () => dispatch(logoutUser())
 
-  const itemsByCategory = selectedCategory
+  const itemsByCategory = useMemo(() => selectedCategory
     ? products.filter(item =>
         item.category?.name.toLowerCase() === selectedCategory.toLowerCase()
       )
-    : []
+    : [],
+    [products, selectedCategory]
+  )
 
-  const itemsToShow = itemsByCategory.filter(item => {
+  const itemsToShow = useMemo(() => itemsByCategory.filter(item => {
     const term = searchTerm.trim().toLowerCase()
     if (!term) return true
-
     if (searchBy === 'codigo') {
       return item.codigo !== undefined && item.codigo !== null
         ? String(item.codigo).toLowerCase().includes(term)
@@ -83,7 +90,13 @@ const ProductPage: React.FC = () => {
     }
     const text = `${item.name} ${item.title ?? ''} ${item.description ?? ''}`.toLowerCase()
     return text.includes(term)
-  })
+  }), [itemsByCategory, searchTerm, searchBy])
+
+  const catalogTotalPages = Math.ceil(itemsToShow.length / CATALOG_PAGE_SIZE)
+  const paginatedItems = useMemo(() => itemsToShow.slice(
+    (catalogPage - 1) * CATALOG_PAGE_SIZE,
+    catalogPage * CATALOG_PAGE_SIZE
+  ), [itemsToShow, catalogPage, CATALOG_PAGE_SIZE])
 
   const renderMainContent = () => {
     if (mode === 'login') return <LoginForm onSuccess={handleAuthSuccess} onForgotPassword={() => setMode('forgot-password')} />
@@ -157,14 +170,38 @@ const ProductPage: React.FC = () => {
 
         {/* Lista de productos filtrados */}
         {itemsToShow.length > 0 ? (
-          <ProductList
-            items={itemsToShow}
-            isLoggedIn={isLoggedIn}
-            onAddToCart={handleAddToCart}
-          />
+          <>
+            <ProductList
+              items={paginatedItems}
+              isLoggedIn={isLoggedIn}
+              onAddToCart={handleAddToCart}
+            />
+
+            {catalogTotalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <button
+                  onClick={() => setCatalogPage(p => Math.max(1, p - 1))}
+                  disabled={catalogPage === 1}
+                  className="flex items-center gap-1 px-4 py-2 border border-secondary-dark rounded-lg hover:bg-secondary-lightest disabled:opacity-40 transition"
+                >
+                  <FaChevronLeft size={12} /> Anterior
+                </button>
+                <span className="text-sm text-secondary-darkest">
+                  {catalogPage} / {catalogTotalPages}
+                </span>
+                <button
+                  onClick={() => setCatalogPage(p => Math.min(catalogTotalPages, p + 1))}
+                  disabled={catalogPage === catalogTotalPages}
+                  className="flex items-center gap-1 px-4 py-2 border border-secondary-dark rounded-lg hover:bg-secondary-lightest disabled:opacity-40 transition"
+                >
+                  Siguiente <FaChevronRight size={12} />
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <p className="text-center text-secondary-muted italic">
-            No se encontraron productos que coincidan con “{searchTerm}”
+            No se encontraron productos que coincidan con "{searchTerm}"
           </p>
         )}
       </>

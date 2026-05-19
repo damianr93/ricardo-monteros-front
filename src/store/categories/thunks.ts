@@ -9,17 +9,27 @@ import {
   updateSuccess,
   removeSuccess
 } from './slice'
+import { toast } from 'react-toastify'
 
+const getApiError = async (res: Response, fallback: string): Promise<string> => {
+  try {
+    const body = await res.json()
+    return body.error || body.message || fallback
+  } catch {
+    return fallback
+  }
+}
 
 export const fetchCategories = (): AppThunk => async dispatch => {
   dispatch(fetchStart())
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/categories`)
-    if (!res.ok) throw new Error('Error fetching categories')
-      const json = await res.json() as { categories: Category[] }
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/categories?limit=100`)
+    if (!res.ok) throw new Error(await getApiError(res, 'Error al cargar categorías'))
+    const json = await res.json() as { categories: Category[] }
     dispatch(fetchSuccess(json.categories))
   } catch (err: any) {
     dispatch(fetchFailure(err.message))
+    toast.error(err.message || 'Error al cargar categorías', { position: 'top-right' })
   }
 }
 
@@ -30,11 +40,14 @@ export const createCategory = (payload: { name: string; available: boolean }): A
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-    if (!res.ok) throw new Error('Error creating category')
+    if (!res.ok) throw new Error(await getApiError(res, 'Error al crear la categoría'))
     const data: Category = await res.json()
     dispatch(addSuccess(data))
+    toast.success('Categoría creada correctamente', { position: 'top-right' })
   } catch (err: any) {
     dispatch(fetchFailure(err.message))
+    toast.error(err.message || 'Error al crear la categoría', { position: 'top-right' })
+    throw err
   }
 }
 
@@ -45,21 +58,26 @@ export const updateCategory = (id: string, payload: { name: string; available: b
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-    if (!res.ok) throw new Error('Error updating category')
+    if (!res.ok) throw new Error(await getApiError(res, 'Error al actualizar la categoría'))
     const data: Category = await res.json()
     dispatch(updateSuccess(data))
+    toast.success('Categoría actualizada correctamente', { position: 'top-right' })
   } catch (err: any) {
     dispatch(fetchFailure(err.message))
+    toast.error(err.message || 'Error al actualizar la categoría', { position: 'top-right' })
+    throw err
   }
 }
 
 export const deleteCategory = (id: string): AppThunk => async dispatch => {
   try {
-    const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/categories/${id}`, 
-      { method: 'DELETE' })
-    if (!res.ok) throw new Error('Error deleting category')
+    const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/categories/${id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error(await getApiError(res, 'Error al eliminar la categoría'))
     dispatch(removeSuccess(id))
+    toast.success('Categoría eliminada', { position: 'top-right' })
   } catch (err: any) {
     dispatch(fetchFailure(err.message))
+    toast.error(err.message || 'Error al eliminar la categoría', { position: 'top-right' })
+    throw err
   }
 }

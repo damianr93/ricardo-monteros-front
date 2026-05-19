@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/store'
 import { Product } from '../../../data/types'
 import Loading from '../../../components/loading'
+import { toast } from 'react-toastify'
 
 interface ProductFormProps {
   initial?: Product
@@ -77,7 +78,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const category = categories.find(c => c.id === categoryId)
-    if (!category) return alert('Selecciona categoría')
+    if (!category) { toast.error('Selecciona una categoría'); return }
 
     onSubmit(
       {
@@ -158,9 +159,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
           {/* Título */}
           <input
             type="text"
-            placeholder="Título (opcional)"
+            placeholder="Título"
             value={title}
             onChange={e => setTitle(e.target.value)}
+            required
             className="w-full border border-secondary-darkest rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
           />
 

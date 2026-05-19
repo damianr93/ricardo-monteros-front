@@ -11,15 +11,25 @@ import {
 } from "./slice";
 import { toast } from "react-toastify";
 
+const getApiError = async (res: Response, fallback: string): Promise<string> => {
+  try {
+    const body = await res.json();
+    return body.error || body.message || fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 export const fetchProducts = (): AppThunk => async (dispatch) => {
   dispatch(prodFetchStart());
   try {
     const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/products`);
-    if (!res.ok) throw new Error("Error fetching products");
+    if (!res.ok) throw new Error(await getApiError(res, "Error al cargar productos"));
     const json = (await res.json()) as { products: Product[] };
     dispatch(prodFetchSuccess(json.products));
   } catch (err: any) {
     dispatch(prodFetchFailure(err.message));
+    toast.error(err.message || "Error al cargar productos", { position: "top-right" });
   }
 };
 
@@ -48,20 +58,19 @@ export const createProduct =
         }
       }
 
-      // Ahora fetchWithAuth maneja FormData correctamente
       const res = await fetchWithAuth(
         `${import.meta.env.VITE_API_URL}/products`,
-        {
-          method: "POST",
-          body: formData,
-        }
+        { method: "POST", body: formData }
       );
 
-      if (!res.ok) throw new Error("Error creating product");
+      if (!res.ok) throw new Error(await getApiError(res, "Error al crear el producto"));
       const data: Product = await res.json();
       dispatch(prodAddSuccess(data));
+      toast.success("Producto creado correctamente", { position: "top-right" });
     } catch (err: any) {
       dispatch(prodFetchFailure(err.message));
+      toast.error(err.message || "Error al crear el producto", { position: "top-right" });
+      throw err;
     }
   };
 
@@ -103,20 +112,15 @@ export const updateProduct =
           formData.append("images", file);
         });
 
-        // Ahora fetchWithAuth maneja FormData correctamente
         const res = await fetchWithAuth(
           `${import.meta.env.VITE_API_URL}/products/${id}`,
-          {
-            method: "PATCH",
-            body: formData,
-          }
+          { method: "PATCH", body: formData }
         );
 
-        if (!res.ok) throw new Error("Error updating product");
+        if (!res.ok) throw new Error(await getApiError(res, "Error al actualizar el producto"));
         const data: Product = await res.json();
         dispatch(prodUpdateSuccess(data));
       } else {
-        // Para JSON, sí especificar Content-Type
         const res = await fetchWithAuth(
           `${import.meta.env.VITE_API_URL}/products/${id}`,
           {
@@ -129,12 +133,16 @@ export const updateProduct =
           }
         );
 
-        if (!res.ok) throw new Error("Error updating product");
+        if (!res.ok) throw new Error(await getApiError(res, "Error al actualizar el producto"));
         const data: Product = await res.json();
         dispatch(prodUpdateSuccess(data));
       }
+
+      toast.success("Producto actualizado correctamente", { position: "top-right" });
     } catch (err: any) {
       dispatch(prodFetchFailure(err.message));
+      toast.error(err.message || "Error al actualizar el producto", { position: "top-right" });
+      throw err;
     }
   };
 
@@ -144,15 +152,16 @@ export const deleteProduct =
     try {
       const res = await fetchWithAuth(
         `${import.meta.env.VITE_API_URL}/products/${id}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
 
-      if (!res.ok) throw new Error("Error deleting product");
+      if (!res.ok) throw new Error(await getApiError(res, "Error al eliminar el producto"));
       dispatch(prodRemoveSuccess(id));
+      toast.success("Producto eliminado", { position: "top-right" });
     } catch (err: any) {
       dispatch(prodFetchFailure(err.message));
+      toast.error(err.message || "Error al eliminar el producto", { position: "top-right" });
+      throw err;
     }
   };
 
@@ -161,10 +170,7 @@ export const importProductsFromExcel = (products: any[]): AppThunk => async (dis
   try {
     const res = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/products/import`,
-      {
-        method: "POST",
-        body: JSON.stringify({ products }),
-      }
+      { method: "POST", body: JSON.stringify({ products }) }
     );
 
     if (!res.ok) {
@@ -173,28 +179,22 @@ export const importProductsFromExcel = (products: any[]): AppThunk => async (dis
     }
 
     const data = await res.json();
-    
-    // Recargar la lista de productos
     dispatch(fetchProducts());
-    
+
     let message = '';
     if (data.updated > 0 && data.notFound > 0) {
-      message = `Se actualizaron ${data.updated} productos. ${data.notFound} productos no se encontraron.`;
+      message = `Se actualizaron ${data.updated} productos. ${data.notFound} no encontrados.`;
     } else if (data.updated > 0) {
       message = `Se actualizaron ${data.updated} productos correctamente`;
     } else if (data.notFound > 0) {
-      message = `No se encontraron productos para actualizar (${data.notFound} productos no encontrados)`;
+      message = `No se encontraron productos para actualizar (${data.notFound} no encontrados)`;
     } else {
       message = 'No se realizaron cambios en los productos';
     }
-    
-    toast.success(message, {
-      position: "top-right",
-    });
+
+    toast.success(message, { position: "top-right" });
   } catch (err: any) {
     dispatch(prodFetchFailure(err.message));
-    toast.error(err.message || "Error al importar productos", {
-      position: "top-right",
-    });
+    toast.error(err.message || "Error al importar productos", { position: "top-right" });
   }
 };
