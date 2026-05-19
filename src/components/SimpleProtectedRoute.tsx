@@ -15,8 +15,10 @@ const SimpleProtectedRoute: React.FC<SimpleProtectedRouteProps> = ({
 }) => {
   const { isLoggedIn, user, status } = useSelector((state: RootState) => state.userLogged)
 
-  // Auth still initializing — wait before deciding
-  if (status === 'loading' || status === 'idle') {
+  // Auth still initializing — wait only when not yet authenticated.
+  // If already logged in and a re-fetch is running (status=loading), keep
+  // the protected content mounted to avoid an unmount/remount loop.
+  if ((status === 'loading' || status === 'idle') && !isLoggedIn) {
     return (
       <div className="flex items-center justify-center h-screen bg-secondary-lightest">
         <Loading />
