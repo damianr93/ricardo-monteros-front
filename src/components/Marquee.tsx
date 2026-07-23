@@ -3,17 +3,15 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../store/store'
 import { formatArs } from '../utils/currency'
 
-// Cinta superior con información de la web que se desplaza de derecha a izquierda
-// de forma continua. Se renderizan DOS copias idénticas del track y la animación
-// mueve el contenedor -50% (una copia): cuando la primera copia sale por la
-// izquierda, la segunda ya ocupa su lugar, por lo que el bucle no tiene cortes.
-// Cada track ocupa al menos el ancho de la pantalla (min-w-[100vw]) con las
-// frases repartidas (justify-around), para que el texto llene la cinta sin
-// huecos negros.
+// Cinta superior que se desplaza de derecha a izquierda de forma continua.
+// Las frases se repiten para que el "track" sea más ancho que la pantalla (así
+// nunca queda un hueco negro), y se renderizan DOS tracks idénticos: la
+// animación mueve el contenedor -50% (un track), por lo que cuando el primero
+// sale por la izquierda el segundo ya ocupa su lugar y el bucle no se corta.
 const Marquee: React.FC = () => {
   const minOrderAmount = useSelector((state: RootState) => state.settings.minOrderAmount)
 
-  const messages = useMemo(() => {
+  const phrases = useMemo(() => {
     const base = [
       'En el catálogo están todos nuestros productos',
       'Registrate para ver los precios y enviar tu pedido',
@@ -21,17 +19,17 @@ const Marquee: React.FC = () => {
     if (minOrderAmount > 0) {
       base.push(`La compra mínima es de ${formatArs(minOrderAmount)}`)
     }
-    return base
+    // Se repite la secuencia para asegurar que el track supere el ancho de la
+    // pantalla y el desplazamiento sea siempre continuo.
+    return [...base, ...base, ...base]
   }, [minOrderAmount])
 
   const renderTrack = (hidden: boolean) => (
-    <div
-      className="flex shrink-0 min-w-[100vw] items-center justify-around gap-16 px-8"
-      aria-hidden={hidden || undefined}
-    >
-      {messages.map((message, i) => (
-        <span key={i} className="text-xs whitespace-nowrap">
-          {message}
+    <div className="flex shrink-0 items-center" aria-hidden={hidden || undefined}>
+      {phrases.map((phrase, i) => (
+        <span key={i} className="flex items-center">
+          <span className="text-xs whitespace-nowrap">{phrase}</span>
+          <span className="mx-6 text-white/40" aria-hidden="true">•</span>
         </span>
       ))}
     </div>
