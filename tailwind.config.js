@@ -35,7 +35,10 @@ export default {
       keyframes: {
         marquee: {
           '0%': { transform: 'translateX(0)' },
-          '100%': { transform: 'translateX(-100%)' },
+          // -50% = el ancho de una copia (hay dos copias idénticas), por eso el
+          // reinicio es invisible y el texto que sale por la izquierda reaparece
+          // por la derecha de forma continua.
+          '100%': { transform: 'translateX(-50%)' },
         },
       },
       animation: {
