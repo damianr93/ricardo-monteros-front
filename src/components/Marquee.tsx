@@ -21,9 +21,11 @@ const Marquee: React.FC = () => {
 
   return (
     <div className="bg-black text-white h-8 flex items-center overflow-hidden">
-      <div className="inline-flex whitespace-nowrap animate-marquee">
-        <span className="text-xs px-6">{text}</span>
-        <span className="text-xs px-6" aria-hidden="true">{text}</span>
+      <div className="flex shrink-0 animate-marquee">
+        <span className="text-xs px-6 whitespace-nowrap">{text}</span>
+      </div>
+      <div className="flex shrink-0 animate-marquee" aria-hidden="true">
+        <span className="text-xs px-6 whitespace-nowrap">{text}</span>
       </div>
     </div>
   )
