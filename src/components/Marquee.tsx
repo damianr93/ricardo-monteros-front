@@ -19,9 +19,9 @@ const Marquee: React.FC = () => {
     if (minOrderAmount > 0) {
       base.push(`La compra mínima es de ${formatArs(minOrderAmount)}`)
     }
-    // Se repite la secuencia para asegurar que el track supere el ancho de la
-    // pantalla y el desplazamiento sea siempre continuo.
-    return [...base, ...base, ...base]
+    // Se repite la secuencia varias veces para que un solo track supere el ancho
+    // de cualquier pantalla: así nunca queda un hueco vacío al reiniciar el bucle.
+    return Array.from({ length: 5 }, () => base).flat()
   }, [minOrderAmount])
 
   const renderTrack = (hidden: boolean) => (
