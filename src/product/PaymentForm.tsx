@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 interface PaymentFormProps {
   items: Product[];
   total: number;
+  minOrderAmount: number;
   onSuccess: () => void;
 }
 
@@ -17,12 +18,15 @@ interface GroupedItem {
 const PaymentForm: React.FC<PaymentFormProps> = ({
   items,
   total,
+  minOrderAmount,
   onSuccess,
 }) => {
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const belowMinimum = minOrderAmount > 0 && total < minOrderAmount;
 
   const groupItems = (items: Product[]): GroupedItem[] => {
     const grouped = items.reduce<Record<string, GroupedItem>>((acc, item) => {
@@ -40,6 +44,15 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (belowMinimum) {
+      toast.error(
+        `El pedido no alcanza el monto mínimo de compra de $${minOrderAmount.toFixed(2)}`,
+        { position: "top-right" }
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -142,9 +155,15 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         </div>
       </div>
 
+      {belowMinimum && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+          El pedido no alcanza el monto mínimo de compra de ${minOrderAmount.toFixed(2)}.
+        </p>
+      )}
+
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || belowMinimum}
         className="w-full bg-secondary-accent text-secondary-lightest py-3 rounded-xl font-semibold hover:bg-secondary-dark transition disabled:opacity-50"
       >
         {loading ? <Loading /> : "Enviar pedido"}

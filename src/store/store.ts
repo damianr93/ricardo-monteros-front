@@ -4,6 +4,7 @@ import { categoriesSlice } from './categories/slice';
 import { productsSlice } from './products/slice';
 import imagesSlice from './imgAws/imgAws';
 import { usersSlice } from './users/slice';
+import { settingsSlice } from './settings/slice';
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     categories: categoriesSlice.reducer,
     products: productsSlice.reducer,
     images: imagesSlice.reducer,
-    users: usersSlice.reducer
+    users: usersSlice.reducer,
+    settings: settingsSlice.reducer
   },
 })
 

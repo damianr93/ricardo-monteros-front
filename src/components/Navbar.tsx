@@ -84,7 +84,7 @@ const Navbar: React.FC = () => {
                             <li key={sub.label}>
                               <NavLink
                                 to={sub.to!}
-                                className="block px-4 py-2 text-sm text-secondary-darkest hover:bg-primary-light hover:text-primary transition"
+                                className="block px-4 py-2 text-sm text-secondary-darkest hover:bg-primary hover:text-secondary-lightest transition"
                               >
                                 {sub.label}
                               </NavLink>
@@ -127,8 +127,7 @@ const Navbar: React.FC = () => {
                   "&su=Consulta%20desde%20sitio%20web"
                 }
               >
-                <FaEnvelope className="h-6 w-6 mr-3" />
-
+                <FaEnvelope className="h-6 w-6" />
               </a>
 
               <button
@@ -144,7 +143,7 @@ const Navbar: React.FC = () => {
       </header >
 
       <div
-        className={`fixed top-0 right-0 h-full w-3/4 max-w-xs bg-primary-light p-6 shadow-xl transition-transform duration-300 lg:hidden z-50 overflow-y-auto ${drawerOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 h-full w-3/4 max-w-xs bg-primary-light p-6 shadow-xl transition-transform duration-300 md:hidden z-50 overflow-y-auto ${drawerOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
         <button onClick={() => setDrawerOpen(false)} aria-label="Cerrar menú">
@@ -200,7 +199,7 @@ const Navbar: React.FC = () => {
       {
         drawerOpen && (
           <div
-            className="fixed inset-0 bg-secondary-darkest bg-opacity-30 z-40 lg:hidden"
+            className="fixed inset-0 bg-secondary-darkest bg-opacity-30 z-40 md:hidden"
             onClick={() => setDrawerOpen(false)}
           />
         )

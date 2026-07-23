@@ -28,5 +28,9 @@
   "include": [
     "src",
     "src/custom.d.ts"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx"
   ]
 }

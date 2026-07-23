@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../store/store'
 import { fetchMe, logoutUser } from '../store/logged/thunks'
 import { fetchProducts } from '../store/products/thunks'
+import { fetchSettings } from '../store/settings/thunks'
 import Sidebar from './SideBar'
 import WelcomeMessage from './WelcomeMessage'
 import { Product } from '../data/types'
@@ -30,11 +31,19 @@ const ProductPage: React.FC = () => {
 
   const isLoggedIn = useSelector((state: RootState) => state.userLogged.isLoggedIn)
   const products = useSelector((state: RootState) => state.products.list)
+  const minOrderAmount = useSelector((state: RootState) => state.settings.minOrderAmount)
   const dispatch = useDispatch<AppDispatch>()
+
+  const cartTotal = useMemo(
+    () => cartItems.reduce((sum, i) => sum + i.price, 0),
+    [cartItems]
+  )
+  const belowMinimum = minOrderAmount > 0 && cartTotal < minOrderAmount
 
   useEffect(() => {
     dispatch(fetchMe())
     dispatch(fetchProducts())
+    dispatch(fetchSettings())
   }, [dispatch])
 
   useEffect(() => {
@@ -68,7 +77,10 @@ const ProductPage: React.FC = () => {
       return copy
     })
   }
-  const handleCheckoutClick = () => setMode('checkout')
+  const handleCheckoutClick = () => {
+    if (belowMinimum) return
+    setMode('checkout')
+  }
   const handlePaymentSuccess = () => { setCartItems([]); setMode('browse') }
   const onLogoutClick = () => dispatch(logoutUser())
 
@@ -106,7 +118,8 @@ const ProductPage: React.FC = () => {
       return (
         <PaymentForm
           items={cartItems}
-          total={cartItems.reduce((sum, i) => sum + i.price, 0)}
+          total={cartTotal}
+          minOrderAmount={minOrderAmount}
           onSuccess={handlePaymentSuccess}
         />
       )
@@ -209,7 +222,7 @@ const ProductPage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row pt-16 min-h-screen bg-secondary-lightest">
+    <div className="flex flex-col lg:flex-row pt-28 min-h-screen bg-secondary-lightest">
       {/* Mobile toggle */}
       <button
         className="fixed top-1/2 transform -translate-y-1/2 lg:hidden z-50 p-2 bg-primary text-secondary-lightest rounded-full"
@@ -221,7 +234,7 @@ const ProductPage: React.FC = () => {
 
       {/* Sidebar */}
       <Sidebar
-        className={`${sidebarOpen ? 'block' : 'hidden'} lg:block fixed top-16 bottom-0 left-0 w-64 z-40`}
+        className={`${sidebarOpen ? 'block' : 'hidden'} lg:block fixed top-28 bottom-0 left-0 w-64 z-40 lg:sticky lg:top-28 lg:bottom-auto lg:z-auto lg:self-start lg:h-[calc(100vh-7rem)]`}
         selectedId={selectedCategory}
         onSelect={handleSelectCategory}
         onLoginClick={handleLoginClick}
@@ -231,10 +244,12 @@ const ProductPage: React.FC = () => {
         onCheckoutClick={handleCheckoutClick}
         onRemoveFromCart={handleRemoveFromCart}
         isLoggedIn={isLoggedIn}
+        cartTotal={cartTotal}
+        minOrderAmount={minOrderAmount}
       />
 
       {/* Main */}
-      <main className="flex-1 p-6 pt-14 lg:p-12">
+      <main className="flex-1 p-6 lg:p-12">
         {renderMainContent()}
       </main>
     </div>

@@ -8,15 +8,17 @@ import { fetchMe } from '../store/logged/thunks'
 import CategoryList from './components/categories/CategoryList'
 import ProductList from './components/products/ProductList'
 import UserList from './components/users/UserList'
+import SettingsForm from './components/settings/SettingsForm'
 import Loading from '../components/loading'
-import { FaLayerGroup, FaBoxOpen, FaUsers } from 'react-icons/fa'
+import { FaLayerGroup, FaBoxOpen, FaUsers, FaCog } from 'react-icons/fa'
 
-type View = 'categories' | 'products' | 'users'
+type View = 'categories' | 'products' | 'users' | 'settings'
 
 const tabs: { id: View; label: string; icon: React.ReactNode }[] = [
-  { id: 'categories', label: 'Categorías', icon: <FaLayerGroup /> },
-  { id: 'products',   label: 'Productos',  icon: <FaBoxOpen />    },
-  { id: 'users',      label: 'Usuarios',   icon: <FaUsers />      },
+  { id: 'categories', label: 'Categorías',    icon: <FaLayerGroup /> },
+  { id: 'products',   label: 'Productos',     icon: <FaBoxOpen />    },
+  { id: 'users',      label: 'Usuarios',      icon: <FaUsers />      },
+  { id: 'settings',   label: 'Configuración', icon: <FaCog />        },
 ]
 
 const CPanel: React.FC = () => {
@@ -81,6 +83,7 @@ const CPanel: React.FC = () => {
         {view === 'categories' && <CategoryList />}
         {view === 'products'   && <ProductList />}
         {view === 'users'      && <UserList />}
+        {view === 'settings'   && <SettingsForm />}
       </div>
     </div>
   )

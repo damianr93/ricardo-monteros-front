@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react'
 import { Product } from '../data/types'
+import Loading from '../components/loading'
 
 const DEFAULT_IMG = '/img/logo_con_fondo.png'
 
@@ -12,6 +13,8 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart }) => {
   const [showModal, setShowModal] = useState(false)
   const [currentImage, setCurrentImage] = useState(0)
+  const [thumbLoaded, setThumbLoaded] = useState(false)
+  const [modalLoaded, setModalLoaded] = useState(false)
 
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -41,7 +44,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
   const handleImgError: React.DOMAttributes<HTMLImageElement>['onError'] = e => {
     e.currentTarget.onerror = null
     e.currentTarget.src = DEFAULT_IMG
+    setThumbLoaded(true)
+    setModalLoaded(true)
   }
+
+  // Reinicia el estado de carga al cambiar de imagen (flechas) o abrir el modal,
+  // para que el spinner se muestre mientras baja la nueva imagen de S3.
+  React.useEffect(() => {
+    setThumbLoaded(false)
+    setModalLoaded(false)
+  }, [currentImage])
+
+  React.useEffect(() => {
+    if (showModal) setModalLoaded(false)
+  }, [showModal])
 
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
@@ -139,11 +155,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
       >
         {/* Imagen principal con navegación */}
         <div className="relative w-full h-48 bg-white p-2 overflow-hidden flex items-center justify-center">
+          {!thumbLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white">
+              <Loading />
+            </div>
+          )}
           <img
             src={`${import.meta.env.VITE_BASE_AWS_URL}${images[currentImage]}`}
             alt={item.title}
+            onLoad={() => setThumbLoaded(true)}
             onError={handleImgError}
-            className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-95"
+            className={`max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-95 ${thumbLoaded ? 'opacity-100' : 'opacity-0'}`}
           />
           {images.length > 1 && (
             <>
@@ -227,6 +249,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
               </>
             )}
 
+            {/* Spinner mientras carga la imagen ampliada */}
+            {!modalLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <Loading />
+              </div>
+            )}
+
             {/* Imagen con zoom */}
             <div
               className="flex items-center justify-center w-full h-full"
@@ -240,8 +269,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
                 ref={imageRef}
                 src={`${import.meta.env.VITE_BASE_AWS_URL}${images[currentImage]}`}
                 alt={`${item.title} ${currentImage + 1}`}
+                onLoad={() => setModalLoaded(true)}
                 onError={handleImgError}
-                className="max-h-[90vh] max-w-[90vw] object-contain rounded"
+                className={`max-h-[90vh] max-w-[90vw] object-contain rounded transition-opacity duration-200 ${modalLoaded ? 'opacity-100' : 'opacity-0'}`}
                 draggable={false}
               />
             </div>

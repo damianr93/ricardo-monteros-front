@@ -15,6 +15,8 @@ interface SidebarProps {
   onCheckoutClick: () => void
   onRemoveFromCart: (id: string) => void
   isLoggedIn: boolean
+  cartTotal: number
+  minOrderAmount: number
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -28,7 +30,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   onCheckoutClick,
   onRemoveFromCart,
   isLoggedIn,
+  cartTotal,
+  minOrderAmount,
 }) => {
+  const belowMinimum = minOrderAmount > 0 && cartTotal < minOrderAmount
   const counts = cartItems.reduce<Record<string, number>>((acc, item) => {
     acc[item.id] = (acc[item.id] || 0) + 1
     return acc
@@ -42,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [dispatch])
 
   return (
-    <aside className={`${className} w-64 bg-secondary-lightest mt-10 p-6 border-r border-secondary-dark h-[calc(100vh-4rem)] sticky top-16 overflow-auto`}>
+    <aside className={`${className} w-64 bg-secondary-lightest p-6 border-r border-secondary-dark h-full overflow-y-auto`}>
       {/* Bloque de autenticación */}
       {!isLoggedIn ? (
         <div className="mb-6 space-y-2">
@@ -123,8 +128,22 @@ const Sidebar: React.FC<SidebarProps> = ({
               })}
             </ul>
           )}
+
+          {cartItems.length > 0 && (
+            <div className="flex justify-between text-sm font-semibold text-secondary-darkest mb-2">
+              <span>Total</span>
+              <span>${cartTotal.toFixed(2)}</span>
+            </div>
+          )}
+
+          {belowMinimum && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-2">
+              El pedido no alcanza el monto mínimo de compra de ${minOrderAmount.toFixed(2)}.
+            </p>
+          )}
+
           <button
-            disabled={cartItems.length === 0}
+            disabled={cartItems.length === 0 || belowMinimum}
             onClick={onCheckoutClick}
             className="w-full bg-primary text-secondary-lightest py-2 rounded-md hover:bg-primary-dark transition disabled:opacity-50"
           >
