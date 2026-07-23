@@ -54,7 +54,7 @@ const Contacto: React.FC = () => {
   }
 
   return (
-    <div className="bg-secondary-lightest pt-32 pb-16 px-4 sm:px-8 lg:px-24">
+    <div className="bg-secondary-lightest pt-40 pb-16 px-4 sm:px-8 lg:px-24">
       {/* Hero */}
       <div
         className="relative h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden shadow-lg mb-16"

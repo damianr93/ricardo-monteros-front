@@ -5,6 +5,8 @@ import { NavLink } from 'react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../store/store'
 import { fetchCategories } from '../store/categories/thunks'
+import { fetchSettings } from '../store/settings/thunks'
+import Marquee from './Marquee'
 
 interface NavItem {
   label: string
@@ -22,6 +24,7 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchCategories())
+    dispatch(fetchSettings())
   }, [dispatch])
 
   useEffect(() => {
@@ -63,6 +66,7 @@ const Navbar: React.FC = () => {
           : 'bg-primary-light'
           }`}
       >
+        <Marquee />
         <div className="py-4">
           <div className="container mx-auto px-6 flex items-center justify-between">
             <NavLink to="/" className="flex-shrink-0">

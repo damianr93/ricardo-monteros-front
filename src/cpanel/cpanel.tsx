@@ -50,16 +50,16 @@ const CPanel: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-secondary-lightest pt-[112px]">
+    <div className="min-h-screen bg-secondary-lightest pt-[144px]">
       {/* Page header + tabs — sticky just below the fixed navbar */}
-      <div className="sticky top-[112px] z-30 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-[144px] z-30 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-6 py-3">
           <h1 className="text-2xl font-heading text-primary">Panel de Control</h1>
         </div>
       </div>
 
       {/* Tab navigation */}
-      <div className="sticky top-[161px] z-30 bg-white border-b border-gray-200 px-6">
+      <div className="sticky top-[193px] z-30 bg-white border-b border-gray-200 px-6">
         <nav className="flex space-x-1">
           {tabs.map(tab => (
             <button

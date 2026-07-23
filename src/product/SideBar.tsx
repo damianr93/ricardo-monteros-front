@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../store/store'
 import { fetchCategories } from '../store/categories/thunks'
 import { Product } from '../data/types'
+import { formatArs } from '../utils/currency'
 
 interface SidebarProps {
   className?: string
@@ -132,13 +133,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           {cartItems.length > 0 && (
             <div className="flex justify-between text-sm font-semibold text-secondary-darkest mb-2">
               <span>Total</span>
-              <span>${cartTotal.toFixed(2)}</span>
+              <span>{formatArs(cartTotal)}</span>
             </div>
           )}
 
           {belowMinimum && (
             <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-2">
-              El pedido no alcanza el monto mínimo de compra de ${minOrderAmount.toFixed(2)}.
+              El pedido no alcanza el monto mínimo de compra de {formatArs(minOrderAmount)}.
             </p>
           )}
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react'
 import { Product } from '../data/types'
 import Loading from '../components/loading'
+import { formatArs } from '../utils/currency'
 
 const DEFAULT_IMG = '/img/logo_con_fondo.png'
 
@@ -193,7 +194,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, isLoggedIn, onAddToCart
 
           {isLoggedIn ? (
             <div className="flex justify-between items-center">
-              <p className="text-primary font-semibold">${item.price}</p>
+              <p className="text-primary font-semibold">{formatArs(item.price)}</p>
               <button
                 onClick={e => { e.stopPropagation(); onAddToCart(item) }}
                 className="bg-primary text-secondary-lightest px-3 py-1 rounded-md hover:bg-primary-dark transition text-sm"

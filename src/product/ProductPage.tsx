@@ -222,7 +222,7 @@ const ProductPage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row pt-28 min-h-screen bg-secondary-lightest">
+    <div className="flex flex-col lg:flex-row pt-36 min-h-screen bg-secondary-lightest">
       {/* Mobile toggle */}
       <button
         className="fixed top-1/2 transform -translate-y-1/2 lg:hidden z-50 p-2 bg-primary text-secondary-lightest rounded-full"
@@ -234,7 +234,7 @@ const ProductPage: React.FC = () => {
 
       {/* Sidebar */}
       <Sidebar
-        className={`${sidebarOpen ? 'block' : 'hidden'} lg:block fixed top-28 bottom-0 left-0 w-64 z-40 lg:sticky lg:top-28 lg:bottom-auto lg:z-auto lg:self-start lg:h-[calc(100vh-7rem)]`}
+        className={`${sidebarOpen ? 'block' : 'hidden'} lg:block fixed top-36 bottom-0 left-0 w-64 z-40 lg:sticky lg:top-36 lg:bottom-auto lg:z-auto lg:self-start lg:h-[calc(100vh-9rem)]`}
         selectedId={selectedCategory}
         onSelect={handleSelectCategory}
         onLoginClick={handleLoginClick}

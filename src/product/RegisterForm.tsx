@@ -6,13 +6,10 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
-  // Campos obligatorios
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  // Campos opcionales
   const [razonSocial, setRazonSocial] = useState("");
   const [CUIT, setCUIT] = useState("");
   const [caracteristica, setCaracteristica] = useState("");
@@ -25,11 +22,28 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Todos los campos son obligatorios
+    if (
+      !name.trim() ||
+      !email.trim() ||
+      !password ||
+      !confirmPassword ||
+      !razonSocial.trim() ||
+      !CUIT.trim() ||
+      !caracteristica.trim() ||
+      !telefono.trim() ||
+      !direccion.trim() ||
+      !localidad.trim() ||
+      !provincia.trim() ||
+      !codigoPostal.trim()
+    ) {
+      toast.error("Todos los campos son obligatorios", { position: "top-left" });
+      return;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error("Por favor ingrese un email válido", {
-        position: "top-left",
-      });
+      toast.error("Por favor ingrese un email válido", { position: "top-left" });
       return;
     }
     if (password.length < 6) {
@@ -42,39 +56,29 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       toast.error("Las contraseñas no coinciden", { position: "top-left" });
       return;
     }
-
-    // Validaciones opcionales
-    if (CUIT && !/^\d{11}$/.test(CUIT)) {
-      toast.error("El CUIT debe tener 11 dígitos", {
-        position: "top-left",
-      });
+    if (!/^\d{11}$/.test(CUIT)) {
+      toast.error("El CUIT debe tener 11 dígitos", { position: "top-left" });
       return;
     }
-
-    if (
-      codigoPostal &&
-      (isNaN(Number(codigoPostal)) || Number(codigoPostal) <= 0)
-    ) {
+    if (isNaN(Number(codigoPostal)) || Number(codigoPostal) <= 0) {
       toast.error("El código postal debe ser un número válido", {
         position: "top-left",
       });
       return;
     }
 
-    // Construir objeto de datos
-    const userData: any = { name, email, password };
-
-    // Agregar campos opcionales si tienen valor
-    if (razonSocial.trim()) userData.razonSocial = razonSocial.trim();
-    if (CUIT.trim()) userData.CUIT = CUIT.trim();
-    if (caracteristica.trim() && telefono.trim()) {
-      userData.phone = `${caracteristica.trim()}-${telefono.trim()}`;
-    }
-    if (direccion.trim()) userData.direccion = direccion.trim();
-    if (localidad.trim()) userData.localidad = localidad.trim();
-    if (provincia.trim()) userData.provincia = provincia.trim();
-    if (codigoPostal.trim())
-      userData.codigoPostal = Number(codigoPostal.trim());
+    const userData = {
+      name: name.trim(),
+      email: email.trim(),
+      password,
+      razonSocial: razonSocial.trim(),
+      CUIT: CUIT.trim(),
+      phone: `${caracteristica.trim()}-${telefono.trim()}`,
+      direccion: direccion.trim(),
+      localidad: localidad.trim(),
+      provincia: provincia.trim(),
+      codigoPostal: Number(codigoPostal.trim()),
+    };
 
     try {
       const response = await fetch(
@@ -111,7 +115,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       </h2>
 
       <div className="space-y-4">
-        {/* Campos obligatorios */}
         <div>
           <label className="block text-secondary-darkest mb-2">Nombre *</label>
           <input
@@ -163,40 +166,40 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
           />
         </div>
 
-        {/* Separador */}
         <div className="border-t border-secondary-dark pt-4">
           <p className="text-secondary-darkest text-sm mb-4">
-            Información adicional (opcional)
+            Datos de facturación y envío
           </p>
         </div>
 
-        {/* Campos opcionales */}
         <div>
           <label className="block text-secondary-darkest mb-2">
-            Razón Social
+            Razón Social *
           </label>
           <input
             type="text"
             value={razonSocial}
             onChange={(e) => setRazonSocial(e.target.value)}
+            required
             className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
         <div>
-          <label className="block text-secondary-darkest mb-2">CUIT</label>
+          <label className="block text-secondary-darkest mb-2">CUIT *</label>
           <input
             type="text"
             value={CUIT}
             onChange={(e) => setCUIT(e.target.value.replace(/\D/g, ""))}
             maxLength={11}
             placeholder="11 dígitos"
+            required
             className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
         <div>
-          <label className="block text-secondary-darkest mb-2">Teléfono</label>
+          <label className="block text-secondary-darkest mb-2">Teléfono *</label>
           <div className="flex space-x-2">
             <input
               type="text"
@@ -206,6 +209,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
               }
               placeholder="Característ."
               maxLength={4}
+              required
               className="w-1/3 border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <input
@@ -214,49 +218,60 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
               onChange={(e) => setTelefono(e.target.value.replace(/\D/g, ""))}
               placeholder="Número"
               maxLength={8}
+              required
               className="w-2/3 border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-secondary-darkest mb-2">Dirección</label>
+          <label className="block text-secondary-darkest mb-2">
+            Dirección *
+          </label>
           <input
             type="text"
             value={direccion}
             onChange={(e) => setDireccion(e.target.value)}
-            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        <div>
-          <label className="block text-secondary-darkest mb-2">Localidad</label>
-          <input
-            type="text"
-            value={localidad}
-            onChange={(e) => setLocalidad(e.target.value)}
-            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        <div>
-          <label className="block text-secondary-darkest mb-2">Provincia</label>
-          <input
-            type="text"
-            value={provincia}
-            onChange={(e) => setProvincia(e.target.value)}
+            required
             className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
         <div>
           <label className="block text-secondary-darkest mb-2">
-            Código Postal
+            Localidad *
+          </label>
+          <input
+            type="text"
+            value={localidad}
+            onChange={(e) => setLocalidad(e.target.value)}
+            required
+            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label className="block text-secondary-darkest mb-2">
+            Provincia *
+          </label>
+          <input
+            type="text"
+            value={provincia}
+            onChange={(e) => setProvincia(e.target.value)}
+            required
+            className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label className="block text-secondary-darkest mb-2">
+            Código Postal *
           </label>
           <input
             type="text"
             value={codigoPostal}
             onChange={(e) => setCodigoPostal(e.target.value.replace(/\D/g, ""))}
+            required
             className="w-full border border-secondary-darkest rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>

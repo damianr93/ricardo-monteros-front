@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Product } from "../data/types";
 import Loading from "../components/loading";
 import { toast } from "react-toastify";
+import { formatArs } from "../utils/currency";
 
 interface PaymentFormProps {
   items: Product[];
@@ -47,7 +48,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
     if (belowMinimum) {
       toast.error(
-        `El pedido no alcanza el monto mínimo de compra de $${minOrderAmount.toFixed(2)}`,
+        `El pedido no alcanza el monto mínimo de compra de ${formatArs(minOrderAmount)}`,
         { position: "top-right" }
       );
       return;
@@ -105,12 +106,12 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                   </span>
                 )}
               </span>
-              <span>${(product.price * quantity).toFixed(2)}</span>
+              <span>{formatArs(product.price * quantity)}</span>
             </li>
           ))}
           <li className="flex justify-between font-semibold text-primary border-t border-secondary-dark pt-2 mt-2">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>{formatArs(total)}</span>
           </li>
         </ul>
       </div>
@@ -157,7 +158,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
       {belowMinimum && (
         <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
-          El pedido no alcanza el monto mínimo de compra de ${minOrderAmount.toFixed(2)}.
+          El pedido no alcanza el monto mínimo de compra de {formatArs(minOrderAmount)}.
         </p>
       )}
 
